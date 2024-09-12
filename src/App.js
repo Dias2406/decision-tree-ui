@@ -268,7 +268,7 @@ function App() {
         textAlign: 'center',
         zIndex: '1',
         color: '#666',
-        fontSize: '10px'
+        fontSize: '5px'
       }}>
         Made by Frederico Leite Richardson and Dias Jakupov<br></br>frederico@l4wb-i.org<br></br>dias@l4wb-i.org
       </div>
