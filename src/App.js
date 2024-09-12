@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect} from 'react';
 import './App.css';
 import Navbar from './navbar';
 import SelectionUI from './SelectionUI';
 import { FaInfoCircle, FaCircle, FaTable, FaList, FaExternalLinkAlt } from 'react-icons/fa';
+import LoadingScreen from './LoadingScreen';
 
 // Add this function at the top of your file, outside of the App component
 function capitalizeWords(str) {
@@ -21,9 +22,12 @@ function App() {
   const [expandedChallenges, setExpandedChallenges] = useState({});
   const [viewMode, setViewMode] = useState('list');
 
-  useEffect(() => {
-    // Remove the existing useEffect that updates relevantPapers
-  }, []);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const totalCheckpoints = 5; // Set this to the total number of checkpoints you want
+
+  const [isOverlayLoading, setIsOverlayLoading] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
     let lastScrollTop = 0;
@@ -51,12 +55,55 @@ function App() {
     };
   }, []);
 
+  const updateProgress = (checkpoint) => {
+    const newProgress = (checkpoint / totalCheckpoints) * 100;
+    setLoadingProgress(newProgress);
+    if (checkpoint === totalCheckpoints) {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Initial loading tasks
+    updateProgress(1); // First checkpoint
+
+    // Simulating other loading tasks
+    setTimeout(() => updateProgress(2), 100); // Second checkpoint
+    setTimeout(() => updateProgress(3), 250); // Third checkpoint
+    setTimeout(() => updateProgress(4), 250); // Fourth checkpoint
+    setTimeout(() => updateProgress(5), 1000); // Final checkpoint
+
+    // You can replace these setTimeout calls with actual loading tasks
+  }, []);
+
+  useEffect(() => {
+    let intervalId;
+    if (isOverlayLoading && loadingProgress < 95) {
+      const intervalSpeed = dataLoaded ? 30 : 200; // 0.05 seconds if data loaded, else 0.2 seconds
+      intervalId = setInterval(() => {
+        setLoadingProgress(prevProgress => {
+          const increment = dataLoaded ? Math.random() * 20 : Math.random() * 10;
+          return Math.min(prevProgress + increment, 95);
+        });
+      }, intervalSpeed);
+    } else if (dataLoaded && loadingProgress >= 95) {
+      // Data is loaded and progress is at least 95%, complete the loading
+      setLoadingProgress(100);
+      setTimeout(() => {
+        setIsOverlayLoading(false);
+      }, 500); // Wait for 500ms to show 100% before hiding loading screen
+    }
+    return () => clearInterval(intervalId);
+  }, [isOverlayLoading, loadingProgress, dataLoaded]);
+
   const handleSubmit = () => {
     console.log(JSON.stringify(selections, null, 2));
     setOverlayVisible(true);
-    document.body.classList.add('no-scroll'); // Lock scroll
+    setIsOverlayLoading(true);
+    setLoadingProgress(0);
+    setDataLoaded(false);
+    document.body.classList.add('no-scroll');
 
-    // Fetch paper descriptors based on user criteria
     fetch('/api/paper-hashes', {
       method: 'POST',
       headers: {
@@ -67,8 +114,12 @@ function App() {
       .then(response => response.json())
       .then(data => {
         setPaperDescriptors(data.descriptors);
+        setDataLoaded(true);
       })
-      .catch(error => console.error('Error fetching paper descriptors:', error));
+      .catch(error => {
+        console.error('Error fetching paper descriptors:', error);
+        setDataLoaded(true);
+      });
 
     // Force navbar to appear with animation
     const navbar = document.querySelector('.navbar');
@@ -258,6 +309,8 @@ function App() {
   return (
     <div className="App">
       
+      {isLoading && <LoadingScreen progress={loadingProgress} />}
+
       <Navbar />
 
       <div style={{
@@ -319,141 +372,145 @@ function App() {
       </footer>
 
       <div className={`overlay ${overlayVisible ? 'visible' : ''}`}>
-        <div className="overlay-content">
-          <div className="overlay-header">
-            <button onClick={handleCloseOverlay} className="overlay-button">Back</button>
-            <h2></h2>
-            <div className="view-toggle">
-              <FaList className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} />
-              <label className="switch">
-                <input 
-                  type="checkbox" 
-                  checked={viewMode === 'table'} 
-                  onChange={toggleViewMode}
-                />
-                <span className="slider round"></span>
-              </label>
-              <FaTable className={viewMode === 'table' ? 'active' : ''} onClick={() => setViewMode('table')} />
+        {isOverlayLoading ? (
+          <LoadingScreen progress={loadingProgress} />
+        ) : (
+          <div className="overlay-content">
+            <div className="overlay-header">
+              <button onClick={handleCloseOverlay} className="overlay-button">Back</button>
+              <h2></h2>
+              <div className="view-toggle">
+                <FaList className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} />
+                <label className="switch">
+                  <input 
+                    type="checkbox" 
+                    checked={viewMode === 'table'} 
+                    onChange={toggleViewMode}
+                  />
+                  <span className="slider round"></span>
+                </label>
+                <FaTable className={viewMode === 'table' ? 'active' : ''} onClick={() => setViewMode('table')} />
+              </div>
             </div>
-          </div>
-          {viewMode === 'list' ? (
-            // Existing list view code
-            paperDescriptors.length > 0 ? (
-              paperDescriptors.map(descriptor => (
-                <div key={descriptor.hash} className="paper-box">
-                  <div className="paper-header">
-                    <h3>{descriptor.data.title}</h3>
-                    <div className="info-icon-container">
-                      <FaInfoCircle 
-                        className="info-icon" 
-                        onMouseEnter={() => fetchPaperData(descriptor.hash)}
-                      />
-                      {paperData[descriptor.hash] && (
-                        <div className="criteria-box">
-                          <h4>Paper Descriptors:</h4>
-                          <ul>
-                            {Object.entries(paperData[descriptor.hash]).map(([key, value]) => (
-                              !['hash', 'title', 'description of the intervention/policy option', 'description of the intervention/policy option summary', 'findings'].includes(key) && (
-                                <li key={key}>
-                                  <strong>{capitalizeWords(key)}:</strong> {Array.isArray(value) ? value.join(', ') : value}
-                                </li>
-                              )
-                            ))}
-                          </ul>
-                        </div>
+            {viewMode === 'list' ? (
+              // Existing list view code
+              paperDescriptors.length > 0 ? (
+                paperDescriptors.map(descriptor => (
+                  <div key={descriptor.hash} className="paper-box">
+                    <div className="paper-header">
+                      <h3>{descriptor.data.title}</h3>
+                      <div className="info-icon-container">
+                        <FaInfoCircle 
+                          className="info-icon" 
+                          onMouseEnter={() => fetchPaperData(descriptor.hash)}
+                        />
+                        {paperData[descriptor.hash] && (
+                          <div className="criteria-box">
+                            <h4>Paper Descriptors:</h4>
+                            <ul>
+                              {Object.entries(paperData[descriptor.hash]).map(([key, value]) => (
+                                !['hash', 'title', 'description of the intervention/policy option', 'description of the intervention/policy option summary', 'findings'].includes(key) && (
+                                  <li key={key}>
+                                    <strong>{capitalizeWords(key)}:</strong> {Array.isArray(value) ? value.join(', ') : value}
+                                  </li>
+                                )
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Add this new section for links right after the title */}
+                    <div className="paper-links">
+                      {descriptor.data.link && (
+                        <a href={descriptor.data.link} target="_blank" rel="noopener noreferrer" className="paper-link">
+                          View Paper
+                        </a>
+                      )}
+                      {descriptor.data.pdf && (
+                        <a href={descriptor.data.pdf} target="_blank" rel="noopener noreferrer" className="paper-link">
+                          PDF
+                        </a>
+                      )}
+                      {descriptor.data.doi && (
+                        <a href={`https://doi.org/${descriptor.data.doi}`} target="_blank" rel="noopener noreferrer" className="paper-link">
+                          DOI
+                        </a>
                       )}
                     </div>
-                  </div>
-                  
-                  {/* Add this new section for links right after the title */}
-                  <div className="paper-links">
-                    {descriptor.data.link && (
-                      <a href={descriptor.data.link} target="_blank" rel="noopener noreferrer" className="paper-link">
-                        View Paper
-                      </a>
-                    )}
-                    {descriptor.data.pdf && (
-                      <a href={descriptor.data.pdf} target="_blank" rel="noopener noreferrer" className="paper-link">
-                        PDF
-                      </a>
-                    )}
-                    {descriptor.data.doi && (
-                      <a href={`https://doi.org/${descriptor.data.doi}`} target="_blank" rel="noopener noreferrer" className="paper-link">
-                        DOI
-                      </a>
-                    )}
-                  </div>
 
-                  <div className="description-header" onClick={() => toggleDescriptionExpansion(descriptor.hash)}>
-                    <h4 className="highlight-color">Policy Description</h4>
-                    <div className="expand-indicator">
-                      <span>{expandedDescriptions[descriptor.hash] ? 'Read less' : 'Read more'}</span>
-                      <span className={`arrow ${expandedDescriptions[descriptor.hash] ? 'expanded' : ''}`}>▶</span>
-                    </div>
-                  </div>
-                  <p>{descriptor.data['description of the intervention/policy option summary']}</p>
-                  <div className={`expandable-content ${expandedDescriptions[descriptor.hash] ? 'expanded' : ''}`}>
-                    <h4 className="highlight-color">Details:</h4>
-                    <p>{descriptor.data['description of the intervention/policy option']}</p>
-                  </div>
-                  <div className="description-header" onClick={() => toggleFindingsExpansion(descriptor.hash)}>
-                    <div className="findings-header">
-                      <h4 className="highlight-color">Findings</h4>
-                      {descriptor.data.effect && (
-                        <div className="effect-indicator" style={{backgroundColor: getEffectColor(descriptor.data.effect)}}>
-                          {descriptor.data.effect.toUpperCase()}
-                          {descriptor.data.explanation && (
-                            <span className="effect-explanation">{descriptor.data.explanation}</span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <div className="expand-indicator">
-                      <span>{expandedFindings[descriptor.hash] ? 'Read less' : 'Read more'}</span>
-                      <span className={`arrow ${expandedFindings[descriptor.hash] ? 'expanded' : ''}`}>▶</span>
-                    </div>
-                  </div>
-                  <p>{descriptor.data['findings summary']}</p>
-                  <div className={`expandable-content ${expandedFindings[descriptor.hash] ? 'expanded' : ''}`}>
-                    <h4 className="highlight-color">Details:</h4>
-                    <p>{descriptor.data['findings']}</p>
-                  </div>
-                  
-                  {/* Add the Challenges section */}
-                  {descriptor.data.challenges && 
-                   descriptor.data.challenges.trim() !== '' && 
-                   descriptor.data.challenges.toLowerCase() !== 'na' && (
-                    <>
-                      <div className="description-header" onClick={() => toggleChallengesExpansion(descriptor.hash)}>
-                        <h4 className="highlight-color">Challenges</h4>
-                        <div className="expand-indicator">
-                          <span>{expandedChallenges[descriptor.hash] ? 'Read less' : 'Read more'}</span>
-                          <span className={`arrow ${expandedChallenges[descriptor.hash] ? 'expanded' : ''}`}>▶</span>
-                        </div>
+                    <div className="description-header" onClick={() => toggleDescriptionExpansion(descriptor.hash)}>
+                      <h4 className="highlight-color">Policy Description</h4>
+                      <div className="expand-indicator">
+                        <span>{expandedDescriptions[descriptor.hash] ? 'Read less' : 'Read more'}</span>
+                        <span className={`arrow ${expandedDescriptions[descriptor.hash] ? 'expanded' : ''}`}>▶</span>
                       </div>
-                      <div className={`expandable-content ${expandedChallenges[descriptor.hash] ? 'expanded' : ''}`}>
-                        <p>{descriptor.data.challenges}</p>
-                      </div>
-                    </>
-                  )}
-                  
-                  {/* Add the new Citation section */}
-                  {descriptor.data.citation && descriptor.data.citation.trim() !== '' && (
-                    <div className="citation-section">
-                      <h4 className="highlight-color">Citation</h4>
-                      <p className="citation-text">{descriptor.data.citation}</p>
                     </div>
-                  )}
-                </div>
-              ))
+                    <p>{descriptor.data['description of the intervention/policy option summary']}</p>
+                    <div className={`expandable-content ${expandedDescriptions[descriptor.hash] ? 'expanded' : ''}`}>
+                      <h4 className="highlight-color">Details:</h4>
+                      <p>{descriptor.data['description of the intervention/policy option']}</p>
+                    </div>
+                    <div className="description-header" onClick={() => toggleFindingsExpansion(descriptor.hash)}>
+                      <div className="findings-header">
+                        <h4 className="highlight-color">Findings</h4>
+                        {descriptor.data.effect && (
+                          <div className="effect-indicator" style={{backgroundColor: getEffectColor(descriptor.data.effect)}}>
+                            {descriptor.data.effect.toUpperCase()}
+                            {descriptor.data.explanation && (
+                              <span className="effect-explanation">{descriptor.data.explanation}</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="expand-indicator">
+                        <span>{expandedFindings[descriptor.hash] ? 'Read less' : 'Read more'}</span>
+                        <span className={`arrow ${expandedFindings[descriptor.hash] ? 'expanded' : ''}`}>▶</span>
+                      </div>
+                    </div>
+                    <p>{descriptor.data['findings summary']}</p>
+                    <div className={`expandable-content ${expandedFindings[descriptor.hash] ? 'expanded' : ''}`}>
+                      <h4 className="highlight-color">Details:</h4>
+                      <p>{descriptor.data['findings']}</p>
+                    </div>
+                    
+                    {/* Add the Challenges section */}
+                    {descriptor.data.challenges && 
+                     descriptor.data.challenges.trim() !== '' && 
+                     descriptor.data.challenges.toLowerCase() !== 'na' && (
+                      <>
+                        <div className="description-header" onClick={() => toggleChallengesExpansion(descriptor.hash)}>
+                          <h4 className="highlight-color">Challenges</h4>
+                          <div className="expand-indicator">
+                            <span>{expandedChallenges[descriptor.hash] ? 'Read less' : 'Read more'}</span>
+                            <span className={`arrow ${expandedChallenges[descriptor.hash] ? 'expanded' : ''}`}>▶</span>
+                          </div>
+                        </div>
+                        <div className={`expandable-content ${expandedChallenges[descriptor.hash] ? 'expanded' : ''}`}>
+                          <p>{descriptor.data.challenges}</p>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* Add the new Citation section */}
+                    {descriptor.data.citation && descriptor.data.citation.trim() !== '' && (
+                      <div className="citation-section">
+                        <h4 className="highlight-color">Citation</h4>
+                        <p className="citation-text">{descriptor.data.citation}</p>
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p>No papers found matching your criteria.</p>
+              )
             ) : (
-              <p>No papers found matching your criteria.</p>
-            )
-          ) : (
-            // New table view
-            renderTableView()
-          )}
-        </div>
+              // New table view
+              renderTableView()
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
