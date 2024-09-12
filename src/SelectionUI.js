@@ -12,7 +12,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria }) {
 
   useEffect(() => {
     console.log('Fetching categories...');
-    fetch('http://68.183.9.132/api/categories')
+    fetch('https://policydecisions.org/api/categories')
       .then(response => response.json())
       .then(data => {
         console.log('Received categories:', data);
@@ -22,7 +22,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria }) {
       .catch(error => console.error('Error fetching categories:', error));
 
     console.log('Fetching category mappings...');
-    fetch('http://68.183.9.132/api/category-mappings')
+    fetch('https://policydecisions.org/api/category-mappings')
       .then(response => response.json())
       .then(data => {
         console.log('Received category mappings:', data);
@@ -45,7 +45,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria }) {
     if (Object.keys(userCriteria).length > 0) {
       updatePaperCount(userCriteria);
     } else {
-      fetch('http://68.183.9.132/api/paper-count', {
+      fetch('https://policydecisions.org/api/paper-count', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria }) {
 
   const updatePaperCount = (criteria) => {
     console.log('Sending criteria:', criteria);
-    fetch('http://68.183.9.132/api/paper-count', {
+    fetch('https://policydecisions.org/api/paper-count', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria }) {
   };
 
   const fetchOptionCount = (category, option) => {
-    fetch('http://68.183.9.132/api/paper-count-for-option', {
+    fetch('https://policydecisions.org/api/paper-count-for-option', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

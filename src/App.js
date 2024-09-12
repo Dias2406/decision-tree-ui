@@ -54,7 +54,7 @@ function App() {
     document.body.classList.add('no-scroll'); // Lock scroll
 
     // Fetch paper descriptors based on user criteria
-    fetch('http://68.183.9.132/api/paper-hashes', {
+    fetch('https://policydecisions.org/api/paper-hashes', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ function App() {
   };
 
   const fetchPaperData = (hash) => {
-    fetch(`http://68.183.9.132/api/paper/${hash}`)
+    fetch(`https://policydecisions.org/api/paper/${hash}`)
       .then(response => response.json())
       .then(data => setPaperData(prevState => ({ ...prevState, [hash]: data })))
       .catch(error => console.error('Error fetching paper data:', error));
