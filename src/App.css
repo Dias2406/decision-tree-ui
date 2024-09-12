@@ -142,6 +142,7 @@ body {
   right: 0;
   z-index: 2000; /* Ensure the navbar appears above the overlay */
   transition: transform 0.3s ease-in-out;
+  width: 100%;
 }
 
 .navbar--hidden {
@@ -259,7 +260,7 @@ body {
   align-items: flex-start; /* Align items to the top */
   transition: right 0.3s ease-in-out;
   z-index: 1000;
-  overflow: hidden; /* Prevent scrolling of the overlay itself */
+  overflow-x: hidden; /* Prevent scrolling of the overlay itself */
   padding-top: 85px; /* Add padding to push content below the navbar */
 }
 
@@ -269,16 +270,15 @@ body {
 
 .overlay-content {
   text-align: center;
-  width: 100%; /* Ensure the overlay content takes the full width */
-  max-width: 1200px; /* Set a max-width for the content */
-  padding: 20px;
+  width: 100vw; /* Change this to 100vw */
+  max-width: none; /* Remove or comment out this line */
+  padding: 20px 0; /* Remove left and right padding */
   overflow: auto; /* Allow scrolling within the overlay content */
   max-height: calc(100% - 85px); /* Ensure it doesn't overflow the overlay, accounting for navbar height */
   box-sizing: border-box; /* Include padding in the element's total width and height */
 }
 
-.submit-button,
-.overlay-button {
+.submit-button {
   padding: 10px 20px !important;
   background-color: var(--highlight-color) !important;
   border: none !important;
@@ -290,18 +290,368 @@ body {
   font-weight: 700 !important; /* Ensure the font weight matches */
 }
 
+.overlay-button {
+  padding: 10px 20px !important;
+  background-color: var(--highlight-color) !important;
+  border: none !important;
+  color: white !important;
+  cursor: pointer !important;
+  font-size: 16px !important;
+  border-radius: 4px !important; /* Add border-radius for rounded corners */
+  font-family: 'Noto Sans', sans-serif !important; /* Ensure the font matches other elements */
+  font-weight: 700 !important; /* Ensure the font weight matches */
+  margin-left: 14%; /* Set left margin as a proportion of the page size */
+}
+
+.submit-button:hover,
+.overlay-button:hover {
+  background-color: #8a1810 !important; /* Darker shade of the highlight color */
+}
+
 .overlay-header {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Align items to the left */
+  justify-content: space-between; /* Changed from flex-start to space-between */
   width: 100%;
-  margin-bottom: 20px; /* Add some space below the header */
+  margin-bottom: 20px;
 }
 
-.overlay-header h2 {
-  margin-left: 20px; /* Add some space between the button and the heading */
-  margin: 0; /* Remove default margin */
-  flex-grow: 1; /* Allow the heading to take up remaining space */
+.view-toggle {
+  display: flex;
+  align-items: center;
+  margin-right: 14%;
+}
+
+.view-toggle svg {
+  font-size: 20px;
+  margin: 0 10px;
+  cursor: pointer;
+  color: #666;
+}
+
+.view-toggle svg.active {
+  color: var(--highlight-color);
+}
+
+/* Switch styles */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  margin: 0 10px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--highlight-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.table-view-container {
+  position: relative;
+  width: 95%;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.table-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 15px; /* Add some padding to show scrollbar */
+}
+
+.table-scroll-wrapper::before,
+.table-scroll-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 15px; /* Match padding-bottom */
+  width: 30px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.table-scroll-wrapper::before {
+  left: 0;
+  background: linear-gradient(to right, white, rgba(255, 255, 255, 0));
+}
+
+.table-scroll-wrapper::after {
+  right: 0;
+  background: linear-gradient(to left, white, rgba(255, 255, 255, 0));
+}
+
+.table-scroll-wrapper table {
+  width: 100%;
+  min-width: 2000px; /* Adjust this value based on your needs */
+  border-collapse: separate;
+  border-spacing: 0 15px;
+  margin-top: 20px;
+}
+
+/* Ensure the header stays above the fade effect */
+.table-scroll-wrapper th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background-color: var(--highlight-color);
+}
+
+.table-scroll-wrapper th,
+.table-scroll-wrapper td {
+  padding: 15px;
+  text-align: left;
+  vertical-align: top;
+  border: none;
+  background-color: #f9f9f9;
+  position: relative;
+}
+
+.table-scroll-wrapper th {
+  background-color: var(--highlight-color);
+  color: white;
+  font-weight: bold;
+}
+
+.table-scroll-wrapper tr {
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.table-scroll-wrapper tr:hover {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.expandable-cell {
+  position: relative;
+  min-height: 100px;
+}
+
+.expanded-details {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.expanded-details.expanded {
+  max-height: 1000px;
+  transition: max-height 0.5s ease-in;
+}
+
+.title-info-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.info-icon-container-table {
+  position: relative;
+  margin-left: 10px;
+}
+
+.info-icon-table {
+  color: var(--highlight-color);
+  cursor: pointer;
+}
+
+.info-icon-container-table:hover .criteria-box-table {
+  opacity: 1;
+  visibility: visible;
+}
+
+.info-icon-container-table:hover .criteria-box-table {
+  opacity: 1;
+  transform: scale(1);
+  max-height: 300px;
+  pointer-events: auto;
+}
+
+.criteria-box-table {
+  position: absolute;
+  top: 0; /* Adjusted to align with the top of the info button */
+  left: 100%; /* Changed from right to left to position it to the right of the info button */
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 5px;
+  z-index: 1000;
+  width: 300px;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.criteria-box-table {
+  position: absolute;
+  top: 0; /* Adjusted to align with the top of the info button */
+  left: 100%; /* Changed from right to left to position it to the right of the info button */
+  background-color: black;
+  color: white;
+  padding: 15px;
+  border-radius: 5px;
+  z-index: 1000;
+  width: 300px;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: scale(0.95);
+  transform-origin: top left; /* Changed to top left to ensure it scales from the correct origin */
+  transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease;
+  max-height: 0;
+  pointer-events: none;
+}
+
+.info-icon-container:hover .criteria-box-table {
+  animation: fadeInGrow 0.3s ease forwards;
+}
+
+.info-icon-container:not(:hover) .criteria-box-table {
+  animation: fadeOutShrink 0.3s ease forwards;
+}
+
+.criteria-box-table h4 {
+  margin-top: 0;
+  color: var(--highlight-color);
+}
+
+.criteria-box-table ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.criteria-box-table li {
+  margin-bottom: 5px;
+}
+
+.criteria-box-table strong {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.info-icon-container {
+  position: relative;
+  margin-left: 10px;
+}
+
+.info-icon {
+  color: var(--highlight-color);
+  cursor: pointer;
+}
+
+.criteria-box {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 5px;
+  z-index: 1000;
+  width: 300px;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.info-icon-container:hover .criteria-box {
+  opacity: 1;
+  visibility: visible;
+}
+
+.expand-button {
+  background-color: transparent;
+  border: none;
+  color: var(--highlight-color);
+  cursor: pointer;
+  font-weight: bold;
+  padding: 5px 10px;
+  margin-top: 5px;
+  transition: background-color 0.3s;
+}
+
+.expand-button:hover {
+  background-color: rgba(175, 30, 21, 0.1);
+}
+
+.table-link {
+  display: inline-block;
+  margin-right: 10px;
+  color: var(--highlight-color);
+  text-decoration: none;
+}
+
+.table-link:hover {
+  text-decoration: underline;
+}
+
+.effect-indicator {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 15px;
+  color: white;
+  font-weight: bold;
+}
+
+/* Responsive design for smaller screens */
+@media screen and (max-width: 1200px) {
+  .table-view table {
+    font-size: 14px;
+  }
+
+  .table-view th, .table-view td {
+    padding: 8px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .table-view table {
+    font-size: 12px;
+  }
+
+  .table-view th, .table-view td {
+    padding: 6px;
+  }
 }
 
 /* Prevent scrolling */
@@ -312,10 +662,10 @@ body {
 .paper-box {
   border: 1px solid #ccc;
   padding: 20px;
-  margin: 20px 0;
+  margin: 0 auto 20px; /* Added space below the element */
   border-radius: 8px;
   background-color: #f9f9f9;
-  width: 100%;
+  width: 72.2%;
   box-sizing: border-box;
   text-align: left;
   transition: all 0.3s ease;
@@ -328,6 +678,7 @@ body {
   cursor: pointer;
   padding: 10px 0;
   border-bottom: 1px solid #e0e0e0;
+  margin-top: 20px; /* Added space above Policy Description */
 }
 
 .description-header:hover {
@@ -391,13 +742,37 @@ body {
 .paper-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;  /* Changed from center to flex-start */
-  position: relative;  /* Added to establish a positioning context */
-  padding-right: 30px;  /* Added to make space for the info icon */
+  align-items: flex-start;
+  position: relative;
+  padding-right: 30px;
+  margin-bottom: 10px; /* Reduced space between title and links */
 }
 
 .paper-title {
-  margin-right: 30px;  /* Added to prevent overlap with the info icon */
+  margin-right: 30px;
+  margin-bottom: 0; /* Ensure no extra space below the title */
+}
+
+.paper-links {
+  margin-top: 5px; /* Reduced space between title and links */
+  margin-bottom: 20px; /* Increased space between links and Policy Description */
+  display: flex;
+  gap: 10px;
+}
+
+.paper-link {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: var(--highlight-color);
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.paper-link:hover {
+  background-color: #8a1810;
 }
 
 .info-icon-container {
@@ -492,4 +867,71 @@ body {
 .criteria-box strong {
   font-weight: bold;
   margin-right: 5px;
+}
+
+.citation-section {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  border-left: 4px solid var(--highlight-color);
+}
+
+.citation-text {
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  margin: 0;
+}
+
+.findings-header {
+  display: flex;
+  align-items: center;
+}
+
+.effect-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: bold;
+  color: white;
+  position: relative;
+}
+
+.effect-explanation {
+  visibility: hidden;
+  width: 200px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.effect-indicator:hover .effect-explanation {
+  visibility: visible;
+  opacity: 1;
+}
+
+.effect-explanation::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
 }

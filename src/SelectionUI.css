@@ -12,7 +12,7 @@
     border: 1px solid #ccc;
     padding: 60px 20px 20px 20px; /* Add top padding to create space for the h2 */
     border-radius: 8px;
-    background-color: white;
+    background-color: #f0f0f0; /* Changed to light grey */
     position: relative; /* Ensure this is set */
 }
 
@@ -46,7 +46,7 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     font-family: 'Noto Sans', sans-serif;
-    background-color: #f0f0f0;
+    background-color: white; /* Changed to white */
 }
 
 .selected-options {
@@ -133,4 +133,3 @@
 .rotate {
     animation: rotate 0.5s ease-in-out; /* Adjusted duration for smoother rotation */
 }
-
