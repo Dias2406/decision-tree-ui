@@ -1,9 +1,11 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Navbar from './navbar';
 import SelectionUI from './SelectionUI';
-import { FaInfoCircle, FaCircle, FaTable, FaList, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaInfoCircle, FaTable, FaList, FaExternalLinkAlt } from 'react-icons/fa';
 import LoadingScreen from './LoadingScreen';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
 
 // Add this function at the top of your file, outside of the App component
 function capitalizeWords(str) {
@@ -29,6 +31,11 @@ function App() {
   const [isOverlayLoading, setIsOverlayLoading] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
 
+  // New state for the download modal
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+
   useEffect(() => {
     let lastScrollTop = 0;
     const navbar = document.querySelector('.navbar');
@@ -36,7 +43,7 @@ function App() {
 
     function handleScroll() {
       let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      
+
       if (scrollTop > lastScrollTop && scrollTop > navbarHeight * 2) {
         // Scrolling down & past twice the navbar height
         navbar.classList.add('navbar--hidden');
@@ -44,7 +51,7 @@ function App() {
         // Scrolling up or near the top
         navbar.classList.remove('navbar--hidden');
       }
-      
+
       lastScrollTop = scrollTop;
     }
 
@@ -96,6 +103,19 @@ function App() {
     return () => clearInterval(intervalId);
   }, [isOverlayLoading, loadingProgress, dataLoaded]);
 
+  useEffect(() => {
+    let intervalId;
+    if (isDownloading && downloadProgress < 95) {
+      intervalId = setInterval(() => {
+        setDownloadProgress(prevProgress => {
+          const increment = Math.random() * 15;
+          return Math.min(prevProgress + increment, 95);
+        });
+      }, 200);
+    }
+    return () => clearInterval(intervalId);
+  }, [isDownloading, downloadProgress]);
+
   const handleSubmit = () => {
     console.log(JSON.stringify(selections, null, 2));
     setOverlayVisible(true);
@@ -127,7 +147,7 @@ function App() {
       navbar.classList.remove('navbar--hidden');
       navbar.style.transition = 'transform 0.3s ease-in-out';
       navbar.style.transform = 'translateY(0)';
-      
+
       // Reset the transition after it's complete
       setTimeout(() => {
         navbar.style.transition = '';
@@ -214,8 +234,8 @@ function App() {
                   <div className="title-info-container">
                     <strong>{descriptor.data.title}</strong>
                     <div className="info-icon-container-table">
-                      <FaInfoCircle 
-                        className="info-icon-table" 
+                      <FaInfoCircle
+                        className="info-icon-table"
                         onMouseEnter={() => fetchPaperData(descriptor.hash)}
                       />
                       {paperData[descriptor.hash] && (
@@ -258,7 +278,7 @@ function App() {
                   </div>
                 </td>
                 <td>
-                  <div className="effect-indicator" style={{backgroundColor: getEffectColor(descriptor.data.effect)}}>
+                  <div className="effect-indicator" style={{ backgroundColor: getEffectColor(descriptor.data.effect) }}>
                     {descriptor.data.effect?.toUpperCase()}
                     {descriptor.data.explanation && (
                       <span className="effect-explanation">{descriptor.data.explanation}</span>
@@ -267,18 +287,18 @@ function App() {
                 </td>
                 <td>
                   <div className="expandable-cell">
-                    {descriptor.data.challenges && 
-                     descriptor.data.challenges.trim() !== '' && 
-                     descriptor.data.challenges.toLowerCase() !== 'na' && (
-                      <>
-                        <button onClick={() => toggleChallengesExpansion(descriptor.hash)} className="expand-button">
-                          {expandedChallenges[descriptor.hash] ? 'Hide Challenges' : 'Show Challenges'}
-                        </button>
-                        <div className={`expanded-details ${expandedChallenges[descriptor.hash] ? 'expanded' : ''}`}>
-                          <p>{descriptor.data.challenges}</p>
-                        </div>
-                      </>
-                    )}
+                    {descriptor.data.challenges &&
+                      descriptor.data.challenges.trim() !== '' &&
+                      descriptor.data.challenges.toLowerCase() !== 'na' && (
+                        <>
+                          <button onClick={() => toggleChallengesExpansion(descriptor.hash)} className="expand-button">
+                            {expandedChallenges[descriptor.hash] ? 'Hide Challenges' : 'Show Challenges'}
+                          </button>
+                          <div className={`expanded-details ${expandedChallenges[descriptor.hash] ? 'expanded' : ''}`}>
+                            <p>{descriptor.data.challenges}</p>
+                          </div>
+                        </>
+                      )}
                   </div>
                 </td>
                 <td>
@@ -306,9 +326,142 @@ function App() {
     </div>
   );
 
+  // New function to handle the download button click
+  const handleDownload = () => {
+    setShowDownloadModal(true);
+  };
+
+  // New function to handle export
+  const handleExport = (format) => {
+    setIsDownloading(true);
+    setDownloadProgress(0);
+    setShowDownloadModal(false);
+
+    // Simulate initial delay
+    setTimeout(() => {
+      // Fetch any missing paper data
+      const hashesToFetch = paperDescriptors.map(descriptor => descriptor.hash);
+      const hashesNotFetched = hashesToFetch.filter(hash => !paperData[hash]);
+
+      if (hashesNotFetched.length > 0) {
+        Promise.all(hashesNotFetched.map(hash =>
+          fetch(`/api/paper/${hash}`)
+            .then(response => response.json())
+            .then(data => ({ hash, data }))
+        )).then(results => {
+          // Update paperData state
+          const newPaperData = {};
+          results.forEach(({ hash, data }) => {
+            newPaperData[hash] = data;
+          });
+          setPaperData(prevData => ({ ...prevData, ...newPaperData }));
+          // Proceed to generate the file
+          generateAndDownloadFile(format);
+        }).catch(error => {
+          console.error('Error fetching paper data for download:', error);
+          setIsDownloading(false);
+          setDownloadProgress(0);
+          // Handle error, maybe notify the user
+        });
+      } else {
+        // All data already fetched, proceed to generate file
+        generateAndDownloadFile(format);
+      }
+    }, 500); // 500ms initial delay
+  };
+
+  // Function to generate and download the file
+  const generateAndDownloadFile = (format) => {
+    const dataToExport = paperDescriptors.map(descriptor => {
+      const hash = descriptor.hash;
+      const data = descriptor.data;
+      const fullData = paperData[hash] || {};
+      // Build the row with the specified columns
+      return {
+        'Title': data.title || '',
+        'Description Summary': data['description of the intervention/policy option summary'] || '',
+        'Description': data['description of the intervention/policy option'] || '',
+        'Findings Summary': data['findings summary'] || '',
+        'Findings': data['findings'] || '',
+        'Effect': data.effect || '',
+        'Effect Details': data.explanation || '',
+        'Challenges': data.challenges || '',
+        'Link': data.link || '',
+        'PDF': data.pdf || '',
+        'DOI': data.doi || '',
+        'Paper Criteria': Object.entries(fullData)
+          .filter(([key, value]) =>
+            !['hash', 'title', 'description of the intervention/policy option', 'description of the intervention/policy option summary', 'findings'].includes(key)
+          )
+          .map(([key, value]) => `${capitalizeWords(key)}: ${Array.isArray(value) ? value.join(', ') : value}`)
+          .join('; ')
+      };
+    });
+
+    if (format === 'csv') {
+      // Generate CSV
+      const csvContent = convertToCSV(dataToExport);
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      setTimeout(() => {
+        saveAs(blob, 'table_data.csv');
+        finalizeDownload();
+      }, 1000); // Delay to show 95% for a moment
+    } else if (format === 'xlsx') {
+      // Generate XLSX
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      // Download XLSX
+      const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+      setTimeout(() => {
+        saveAs(blob, 'table_data.xlsx');
+        finalizeDownload();
+      }, 1000); // Delay to show 95% for a moment
+    }
+  };
+
+  const finalizeDownload = () => {
+    setDownloadProgress(100);
+    setTimeout(() => {
+      setIsDownloading(false);
+      setDownloadProgress(0);
+    }, 500); // Show 100% for half a second before hiding
+  };
+
+  const convertToCSV = (data) => {
+    const headers = Object.keys(data[0]);
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+    data.forEach(row => {
+      const values = headers.map(header => `"${(row[header] || '').toString().replace(/"/g, '""')}"`);
+      csvRows.push(values.join(','));
+    });
+    return csvRows.join('\r\n');
+  };
+
+  useEffect(() => {
+    const tableWrapper = document.querySelector('.table-scroll-wrapper');
+    if (tableWrapper) {
+      const handleScroll = () => {
+        const { scrollLeft, scrollWidth, clientWidth } = tableWrapper;
+        const isAtStart = scrollLeft === 0;
+        const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 1; // -1 to account for rounding errors
+
+        tableWrapper.classList.toggle('show-left-gradient', !isAtStart);
+        tableWrapper.classList.toggle('show-right-gradient', !isAtEnd);
+      };
+
+      tableWrapper.addEventListener('scroll', handleScroll);
+      handleScroll(); // Call once to set initial state
+
+      return () => tableWrapper.removeEventListener('scroll', handleScroll);
+    }
+  }, [viewMode]); // Add viewMode as a dependency to re-run when view changes
+
   return (
     <div className="App">
-      
+
       {isLoading && <LoadingScreen progress={loadingProgress} />}
 
       <Navbar />
@@ -347,7 +500,7 @@ function App() {
         </div>
       </div>
 
-      <div style={{ backgroundColor: 'white', padding: '50px 10px 10px 10px'}}>
+      <div style={{ backgroundColor: 'white', padding: '50px 10px 10px 10px' }}>
         <SelectionUI setSelections={setSelections} setRelevantPapers={setRelevantPapers} setUserCriteria={setUserCriteria} />
       </div>
 
@@ -364,10 +517,10 @@ function App() {
       </div>
 
       <footer className="footer">
-        Copyright © 2024 | Learning for Well-being – 
-        <a href="https://l4wb-i.org/privacy-policy/"> Privacy Policy</a> – 
-        <a href="https://l4wb-i.org/cookies-policy/"> Cookies policy</a> – 
-        <a href="https://l4wb-i.org/general-terms-and-conditions/"> General terms and conditions</a> – 
+        Copyright © 2024 | Learning for Well-being –
+        <a href="https://l4wb-i.org/privacy-policy/"> Privacy Policy</a> –
+        <a href="https://l4wb-i.org/cookies-policy/"> Cookies policy</a> –
+        <a href="https://l4wb-i.org/general-terms-and-conditions/"> General terms and conditions</a> –
         <a href="https://l4wb-i.org/legal-notice/"> Legal notice</a>
       </footer>
 
@@ -377,19 +530,25 @@ function App() {
         ) : (
           <div className="overlay-content">
             <div className="overlay-header">
-              <button onClick={handleCloseOverlay} className="overlay-button">Back</button>
-              <h2></h2>
-              <div className="view-toggle">
-                <FaList className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} />
-                <label className="switch">
-                  <input 
-                    type="checkbox" 
-                    checked={viewMode === 'table'} 
-                    onChange={toggleViewMode}
-                  />
-                  <span className="slider round"></span>
-                </label>
-                <FaTable className={viewMode === 'table' ? 'active' : ''} onClick={() => setViewMode('table')} />
+              <div className="overlay-header-left">
+                <button onClick={handleCloseOverlay} className="overlay-button">Back</button>
+              </div>
+              <div className="overlay-header-center">
+                <button onClick={handleDownload} className="overlay-button">Download Table Data</button>
+              </div>
+              <div className="overlay-header-right">
+                <div className="view-toggle">
+                  <FaList className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')} />
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={viewMode === 'table'}
+                      onChange={toggleViewMode}
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                  <FaTable className={viewMode === 'table' ? 'active' : ''} onClick={() => setViewMode('table')} />
+                </div>
               </div>
             </div>
             {viewMode === 'list' ? (
@@ -421,21 +580,20 @@ function App() {
                       </div>
                     </div>
                     
-                    {/* Add this new section for links right after the title */}
                     <div className="paper-links">
                       {descriptor.data.link && (
                         <a href={descriptor.data.link} target="_blank" rel="noopener noreferrer" className="paper-link">
-                          View Paper
+                          View Paper <FaExternalLinkAlt />
                         </a>
                       )}
                       {descriptor.data.pdf && (
                         <a href={descriptor.data.pdf} target="_blank" rel="noopener noreferrer" className="paper-link">
-                          PDF
+                          PDF <FaExternalLinkAlt />
                         </a>
                       )}
                       {descriptor.data.doi && (
                         <a href={`https://doi.org/${descriptor.data.doi}`} target="_blank" rel="noopener noreferrer" className="paper-link">
-                          DOI
+                          DOI <FaExternalLinkAlt />
                         </a>
                       )}
                     </div>
@@ -452,6 +610,7 @@ function App() {
                       <h4 className="highlight-color">Details:</h4>
                       <p>{descriptor.data['description of the intervention/policy option']}</p>
                     </div>
+
                     <div className="description-header" onClick={() => toggleFindingsExpansion(descriptor.hash)}>
                       <div className="findings-header">
                         <h4 className="highlight-color">Findings</h4>
@@ -475,7 +634,6 @@ function App() {
                       <p>{descriptor.data['findings']}</p>
                     </div>
                     
-                    {/* Add the Challenges section */}
                     {descriptor.data.challenges && 
                      descriptor.data.challenges.trim() !== '' && 
                      descriptor.data.challenges.toLowerCase() !== 'na' && (
@@ -493,7 +651,6 @@ function App() {
                       </>
                     )}
                     
-                    {/* Add the new Citation section */}
                     {descriptor.data.citation && descriptor.data.citation.trim() !== '' && (
                       <div className="citation-section">
                         <h4 className="highlight-color">Citation</h4>
@@ -512,6 +669,25 @@ function App() {
           </div>
         )}
       </div>
+
+      {/* Modal for selecting download format */}
+      {showDownloadModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Select Download Format</h3>
+            <button onClick={() => handleExport('csv')}>CSV</button>
+            <button onClick={() => handleExport('xlsx')}>XLSX</button>
+            <button class = "cancel-button" onClick={() => setShowDownloadModal(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {isDownloading && (
+        <LoadingScreen 
+          progress={downloadProgress} 
+          message={downloadProgress < 100 ? "Preparing download..." : "Download complete!"}
+        />
+      )}
     </div>
   );
 }

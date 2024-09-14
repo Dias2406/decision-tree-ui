@@ -308,18 +308,59 @@ body {
   background-color: #8a1810 !important; /* Darker shade of the highlight color */
 }
 
+/* Adjust the overlay-header to accommodate the new button */
 .overlay-header {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Changed from flex-start to space-between */
+  justify-content: space-between;
   width: 100%;
   margin-bottom: 20px;
+  padding: 0 0; /* Adjust this value to control the side spacing */
 }
 
+.overlay-header-left,
+.overlay-header-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.overlay-header-left {
+  justify-content: flex-start;
+  margin-left: 11.4%;
+}
+
+.overlay-header-right {
+  justify-content: flex-end;
+  margin-right: 14%;
+}
+
+.overlay-header-center {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+}
+
+.overlay-button {
+  padding: 10px 20px !important;
+  background-color: var(--highlight-color) !important;
+  border: none !important;
+  color: white !important;
+  cursor: pointer !important;
+  font-size: 16px !important;
+  border-radius: 4px !important;
+  font-family: 'Noto Sans', sans-serif !important;
+  font-weight: 700 !important;
+}
+
+.overlay-button:hover {
+  background-color: #8a1810 !important;
+}
+
+/* Adjust the view-toggle */
 .view-toggle {
   display: flex;
   align-items: center;
-  margin-right: 14%;
 }
 
 .view-toggle svg {
@@ -398,10 +439,12 @@ input:checked + .slider:before {
   content: '';
   position: absolute;
   top: 0;
-  bottom: 15px; /* Match padding-bottom */
-  width: 30px;
+  bottom: 0;
+  width: 300px; /* Increased width for larger gradient effect */
   z-index: 2;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .table-scroll-wrapper::before {
@@ -414,6 +457,14 @@ input:checked + .slider:before {
   background: linear-gradient(to left, white, rgba(255, 255, 255, 0));
 }
 
+.table-scroll-wrapper.show-left-gradient::before {
+  opacity: 1;
+}
+
+.table-scroll-wrapper.show-right-gradient::after {
+  opacity: 1;
+}
+
 .table-scroll-wrapper table {
   width: 100%;
   min-width: 2000px; /* Adjust this value based on your needs */
@@ -422,11 +473,10 @@ input:checked + .slider:before {
   margin-top: 20px;
 }
 
-/* Ensure the header stays above the fade effect */
+/* Remove the sticky positioning of the header */
 .table-scroll-wrapper th {
-  position: sticky;
-  top: 0;
-  z-index: 3;
+  position: static;
+  z-index: 1;
   background-color: var(--highlight-color);
 }
 
@@ -934,4 +984,64 @@ input:checked + .slider:before {
   border-width: 5px;
   border-style: solid;
   border-color: #555 transparent transparent transparent;
+}
+
+/* Add styles for the modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Above the overlay */
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 400px;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+}
+
+.modal-content button {
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: var(--highlight-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 4px;
+  font-family: 'Noto Sans', sans-serif; /* Add this line */
+  font-size: 16px; /* Add this line */
+  transition: background-color 0.3s ease; /* Add this line for smooth hover effect */
+}
+
+.modal-content .cancel-button {
+  background-color: #f9f9f9;
+  color: var(--highlight-color);
+  border: 1px solid var(--highlight-color);
+  border-radius: 4px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: 'Noto Sans', sans-serif; /* Add this line */
+  font-size: 16px; /* Add this line */
+}
+
+.modal-content button:hover {
+  background-color: #8a1810;
+}
+
+.modal-content .cancel-button:hover {
+  background-color: #ededed;
 }
