@@ -44,19 +44,22 @@ function FeedbackModal({ onClose, onSubmit }) {
             onChange={(e) => setFeedback(e.target.value)}
             required
           ></textarea>
-          <div>
-            {[...Array(10)].map((_, index) => {
-              const ratingValue = index + 1;
-              return (
-                <FaStar
-                  key={index}
-                  color={ratingValue <= rating ? "#ffc107" : "#e4e5e9"}
-                  size={20}
-                  onClick={() => setRating(ratingValue)}
-                  style={{ cursor: 'pointer' }}
-                />
-              );
-            })}
+          <div className="rating-container">
+            <span>Rate your overall experience:</span>
+            <div className="star-rating">
+              {[...Array(10)].map((_, index) => {
+                const ratingValue = index + 1;
+                return (
+                  <FaStar
+                    key={index}
+                    color={ratingValue <= rating ? "#ffc107" : "#e4e5e9"}
+                    size={20}
+                    onClick={() => setRating(ratingValue)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                );
+              })}
+            </div>
           </div>
           <button type="submit" className="submit-button">Submit Feedback</button>
           <button type="button" className="cancel-button" onClick={onClose}>Cancel</button>

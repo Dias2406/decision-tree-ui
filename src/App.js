@@ -39,6 +39,7 @@ function App() {
   const [isSelectionUIReady, setIsSelectionUIReady] = useState(false);
 
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showFeedbackLink, setShowFeedbackLink] = useState(true);
 
   useEffect(() => {
     let lastScrollTop = 0;
@@ -474,6 +475,8 @@ function App() {
     setTimeout(() => {
       setIsDownloading(false);
       setDownloadProgress(0);
+      setShowFeedbackModal(true); // Show feedback modal after download
+      setShowFeedbackLink(false); // Hide the feedback link
     }, 500); // Show 100% for half a second before hiding
   };
 
@@ -519,7 +522,8 @@ function App() {
       
       if (response.ok) {
         setShowFeedbackModal(false);
-        alert('Feedback sent!');
+        alert('Thank you for your feedback!');
+        setShowFeedbackLink(true); // Show the feedback link again
       } else {
         alert('Failed to submit feedback. Please try again.');
       }
@@ -593,9 +597,16 @@ function App() {
         <button onClick={handleSubmit} className="submit-button" style={{ fontSize: '1.5em', padding: '15px 30px', width: '300px' }}>View Relevant Papers</button>
       </div>
 
-      <div style={{ backgroundColor: '#EFEFEF', padding: '20px', height: '80px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <button onClick={() => setShowFeedbackModal(true)} className="submit-button" style={{ fontSize: '1.5em', padding: '15px 30px', width: '300px' }}>Provide Feedback</button>
-      </div>
+      {showFeedbackLink && (
+        <div className="feedback-link-container">
+          <span 
+            className="feedback-link" 
+            onClick={() => setShowFeedbackModal(true)}
+          >
+            Please provide feedback
+          </span>
+        </div>
+      )}
 
       <footer className="footer">
         Copyright © 2024 | Learning for Well-being –
@@ -772,7 +783,10 @@ function App() {
 
       {showFeedbackModal && (
         <FeedbackModal
-          onClose={() => setShowFeedbackModal(false)}
+          onClose={() => {
+            setShowFeedbackModal(false);
+            setShowFeedbackLink(true); // Show the feedback link when modal is closed
+          }}
           onSubmit={handleFeedbackSubmit}
         />
       )}

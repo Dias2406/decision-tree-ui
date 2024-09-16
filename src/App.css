@@ -1061,7 +1061,26 @@ input:checked + .slider:before {
   background-color: #ededed;
 }
 
-/* ... (existing styles) */
+/* Feedback link styles */
+.feedback-link-container {
+  background-color: #EFEFEF;
+  padding: 10px;
+  text-align: center;
+  margin-top: -10px; /* Reduce space above the feedback link */
+}
+
+.feedback-link {
+  color: var(--highlight-color);
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: 'Noto Sans', sans-serif;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+.feedback-link:hover {
+  color: #8a1810;
+}
 
 /* Feedback Modal Styles */
 .modal {
@@ -1083,10 +1102,12 @@ input:checked + .slider:before {
   border-radius: 8px;
   width: 80%;
   max-width: 500px;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 .modal-content h2 {
   margin-top: 0;
+  color: var(--highlight-color);
 }
 
 .modal-content form {
@@ -1100,14 +1121,23 @@ input:checked + .slider:before {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 .modal-content textarea {
   height: 100px;
 }
 
-.modal-content button {
-  margin-top: 10px;
+.rating-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
-/* ... (existing styles) */
+.rating-container span {
+  margin-right: 10px;
+}
+
+.star-rating {
+  display: flex;
+}

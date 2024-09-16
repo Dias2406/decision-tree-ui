@@ -291,7 +291,7 @@ app.post('/api/submit-feedback', (req, res) => {
   const msg = {
     to: 'frederico@l4wb-i.org',
     from: 'admin@l4wb-i.org',
-    subject: 'New Feedback Submission',
+    subject: 'Policy Decision Tree - New Feedback Submission',
     text: `
       Name: ${name}
       Email: ${email}
