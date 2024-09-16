@@ -372,10 +372,52 @@ function App() {
 
   // Function to generate and download the file
   const generateAndDownloadFile = (format) => {
+    // Exclude certain keys
+    const excludedKeys = [
+      'hash',
+      'title',
+      'description of the intervention/policy option',
+      'description of the intervention/policy option summary',
+      'findings',
+      'findings summary',
+      'effect',
+      'explanation',
+      'challenges',
+      'link',
+      'pdf',
+      'doi',
+      'citation'
+    ];
+
+    // Collect all unique keys from fullData across all descriptors
+    const allAdditionalKeys = new Set();
+
+    paperDescriptors.forEach(descriptor => {
+      const hash = descriptor.hash;
+      const fullData = paperData[hash] || {};
+      Object.keys(fullData).forEach(key => {
+        if (!excludedKeys.includes(key)) {
+          allAdditionalKeys.add(capitalizeWords(key));
+        }
+      });
+    });
+
+    const allAdditionalKeysArray = Array.from(allAdditionalKeys);
+
     const dataToExport = paperDescriptors.map(descriptor => {
       const hash = descriptor.hash;
       const data = descriptor.data;
       const fullData = paperData[hash] || {};
+  
+      const additionalData = {};
+  
+      allAdditionalKeysArray.forEach(key => {
+        const originalKey = key.toLowerCase();
+        additionalData[key] = Array.isArray(fullData[originalKey])
+          ? fullData[originalKey].join(', ')
+          : fullData[originalKey] || '';
+      });
+  
       // Build the row with the specified columns
       return {
         'Title': data.title || '',
@@ -389,12 +431,7 @@ function App() {
         'Link': data.link || '',
         'PDF': data.pdf || '',
         'DOI': data.doi || '',
-        'Paper Criteria': Object.entries(fullData)
-          .filter(([key, value]) =>
-            !['hash', 'title', 'description of the intervention/policy option', 'description of the intervention/policy option summary', 'findings'].includes(key)
-          )
-          .map(([key, value]) => `${capitalizeWords(key)}: ${Array.isArray(value) ? value.join(', ') : value}`)
-          .join('; ')
+        ...additionalData
       };
     });
 
