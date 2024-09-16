@@ -288,23 +288,37 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 app.post('/api/submit-feedback', (req, res) => {
   const { name, email, organization, feedback, rating } = req.body;
 
-  const sgMail = require('@sendgrid/mail')
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY)
   const msg = {
-    to: 'frederico@l4wb-i.org', // Change to your recipient
-    from: 'admin@l4wb-i.org', // Change to your verified sender
-    subject: 'Sending with SendGrid is Fun',
-    text: 'and easy to do anywhere, even with Node.js',
-    html: '<strong>and easy to do anywhere, even with Node.js</strong>',
+    to: 'frederico@l4wb-i.org',
+    from: 'admin@l4wb-i.org',
+    subject: 'New Feedback Submission',
+    text: `
+      Name: ${name}
+      Email: ${email}
+      Organization: ${organization}
+      Feedback: ${feedback}
+      Rating: ${rating}/10
+    `,
+    html: `
+      <h2>New Feedback Submission</h2>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Organization:</strong> ${organization}</p>
+      <p><strong>Feedback:</strong> ${feedback}</p>
+      <p><strong>Rating:</strong> ${rating}/10</p>
+    `,
   }
+
   sgMail
     .send(msg)
     .then(() => {
-      console.log('Email sent')
+      console.log('Feedback email sent');
+      res.status(200).json({ message: 'Feedback sent successfully' });
     })
     .catch((error) => {
-      console.error(error)
-    })
+      console.error('Error sending feedback email:', error);
+      res.status(500).json({ error: 'Failed to send feedback' });
+    });
 });
 
 const PORT = process.env.PORT || 3001;

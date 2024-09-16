@@ -518,8 +518,8 @@ function App() {
       });
       
       if (response.ok) {
-        alert('Feedback submitted successfully!');
         setShowFeedbackModal(false);
+        alert('Feedback sent!');
       } else {
         alert('Failed to submit feedback. Please try again.');
       }
