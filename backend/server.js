@@ -300,7 +300,7 @@ app.post('/api/submit-feedback', (req, res) => {
       Rating: ${rating}/10
     `,
     html: `
-      <h2>New Feedback Submission</h2>
+      <h2>Policy Decision Tree - New Feedback Submission</h2>
       <p><strong>Name:</strong> ${name}</p>
       <p><strong>Email:</strong> ${email}</p>
       <p><strong>Organization:</strong> ${organization}</p>
