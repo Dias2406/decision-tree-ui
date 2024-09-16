@@ -6,6 +6,7 @@ import { FaInfoCircle, FaTable, FaList, FaExternalLinkAlt } from 'react-icons/fa
 import LoadingScreen from './LoadingScreen';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
+import FeedbackModal from './FeedbackModal';
 
 function capitalizeWords(str) {
   return str.replace(/\b\w/g, l => l.toUpperCase());
@@ -36,6 +37,8 @@ function App() {
   const [downloadProgress, setDownloadProgress] = useState(0);
 
   const [isSelectionUIReady, setIsSelectionUIReady] = useState(false);
+
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
   useEffect(() => {
     let lastScrollTop = 0;
@@ -504,6 +507,28 @@ function App() {
     }
   }, [viewMode]); // Add viewMode as a dependency to re-run when view changes
 
+  const handleFeedbackSubmit = async (feedbackData) => {
+    try {
+      const response = await fetch('/api/submit-feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(feedbackData),
+      });
+      
+      if (response.ok) {
+        alert('Feedback submitted successfully!');
+        setShowFeedbackModal(false);
+      } else {
+        alert('Failed to submit feedback. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      alert('An error occurred while submitting feedback. Please try again.');
+    }
+  };
+
   return (
     <div className="App">
 
@@ -566,6 +591,10 @@ function App() {
 
       <div style={{ backgroundColor: '#EFEFEF', padding: '20px', height: '80px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <button onClick={handleSubmit} className="submit-button" style={{ fontSize: '1.5em', padding: '15px 30px', width: '300px' }}>View Relevant Papers</button>
+      </div>
+
+      <div style={{ backgroundColor: '#EFEFEF', padding: '20px', height: '80px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <button onClick={() => setShowFeedbackModal(true)} className="submit-button" style={{ fontSize: '1.5em', padding: '15px 30px', width: '300px' }}>Provide Feedback</button>
       </div>
 
       <footer className="footer">
@@ -738,6 +767,13 @@ function App() {
         <LoadingScreen 
           progress={downloadProgress} 
           message={downloadProgress < 100 ? "Preparing download..." : "Download complete!"}
+        />
+      )}
+
+      {showFeedbackModal && (
+        <FeedbackModal
+          onClose={() => setShowFeedbackModal(false)}
+          onSubmit={handleFeedbackSubmit}
         />
       )}
     </div>
