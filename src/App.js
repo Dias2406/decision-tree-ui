@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import Navbar from './navbar';
 import SelectionUI from './SelectionUI';
@@ -7,14 +7,13 @@ import LoadingScreen from './LoadingScreen';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 
-// Add this function at the top of your file, outside of the App component
 function capitalizeWords(str) {
   return str.replace(/\b\w/g, l => l.toUpperCase());
 }
 
 function App() {
   const [selections, setSelections] = useState({});
-  const [relevantPapers, setRelevantPapers] = useState(0);
+  const [relevantPapers, setRelevantPapers] = useState(null);
   const [userCriteria, setUserCriteria] = useState({});
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [paperDescriptors, setPaperDescriptors] = useState([]);
@@ -35,6 +34,8 @@ function App() {
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
+
+  const [isSelectionUIReady, setIsSelectionUIReady] = useState(false);
 
   useEffect(() => {
     let lastScrollTop = 0;
@@ -62,13 +63,13 @@ function App() {
     };
   }, []);
 
-  const updateProgress = (checkpoint) => {
+  const updateProgress = useCallback((checkpoint) => {
     const newProgress = (checkpoint / totalCheckpoints) * 100;
     setLoadingProgress(newProgress);
-    if (checkpoint === totalCheckpoints) {
+    if (checkpoint === totalCheckpoints && isSelectionUIReady) {
       setIsLoading(false);
     }
-  };
+  }, [isSelectionUIReady]);
 
   useEffect(() => {
     // Initial loading tasks
@@ -78,10 +79,13 @@ function App() {
     setTimeout(() => updateProgress(2), 100); // Second checkpoint
     setTimeout(() => updateProgress(3), 250); // Third checkpoint
     setTimeout(() => updateProgress(4), 250); // Fourth checkpoint
-    setTimeout(() => updateProgress(5), 1000); // Final checkpoint
+    // Note: We're not calling the final checkpoint here anymore
+  }, [updateProgress]);
 
-    // You can replace these setTimeout calls with actual loading tasks
-  }, []);
+  const handleSelectionUIRender = useCallback(() => {
+    setIsSelectionUIReady(true);
+    updateProgress(totalCheckpoints); // Final checkpoint
+  }, [updateProgress]);
 
   useEffect(() => {
     let intervalId;
@@ -354,9 +358,13 @@ function App() {
           results.forEach(({ hash, data }) => {
             newPaperData[hash] = data;
           });
-          setPaperData(prevData => ({ ...prevData, ...newPaperData }));
-          // Proceed to generate the file
-          generateAndDownloadFile(format);
+      
+          // Create a local variable with the updated paperData
+          const updatedPaperData = { ...paperData, ...newPaperData };
+          setPaperData(updatedPaperData);
+      
+          // Proceed to generate the file with updatedPaperData
+          generateAndDownloadFile(format, updatedPaperData);
         }).catch(error => {
           console.error('Error fetching paper data for download:', error);
           setIsDownloading(false);
@@ -365,13 +373,13 @@ function App() {
         });
       } else {
         // All data already fetched, proceed to generate file
-        generateAndDownloadFile(format);
+        generateAndDownloadFile(format, paperData);
       }
     }, 500); // 500ms initial delay
   };
 
   // Function to generate and download the file
-  const generateAndDownloadFile = (format) => {
+  const generateAndDownloadFile = (format, currentPaperData) => {
     // Exclude certain keys
     const excludedKeys = [
       'hash',
@@ -394,7 +402,7 @@ function App() {
 
     paperDescriptors.forEach(descriptor => {
       const hash = descriptor.hash;
-      const fullData = paperData[hash] || {};
+      const fullData = currentPaperData[hash] || {};
       Object.keys(fullData).forEach(key => {
         if (!excludedKeys.includes(key)) {
           allAdditionalKeys.add(capitalizeWords(key));
@@ -407,7 +415,7 @@ function App() {
     const dataToExport = paperDescriptors.map(descriptor => {
       const hash = descriptor.hash;
       const data = descriptor.data;
-      const fullData = paperData[hash] || {};
+      const fullData = currentPaperData[hash] || {};
   
       const additionalData = {};
   
@@ -538,11 +546,18 @@ function App() {
       </div>
 
       <div style={{ backgroundColor: 'white', padding: '50px 10px 10px 10px' }}>
-        <SelectionUI setSelections={setSelections} setRelevantPapers={setRelevantPapers} setUserCriteria={setUserCriteria} />
+        <SelectionUI 
+          setSelections={setSelections} 
+          setRelevantPapers={setRelevantPapers} 
+          setUserCriteria={setUserCriteria}
+          onRenderComplete={handleSelectionUIRender}
+        />
       </div>
 
       <div className="floating-papers-count">
-        {Object.keys(userCriteria).length === 0 ? (
+        {relevantPapers === null ? (
+          <span>Number of relevant papers: <span className="loading-dots">...</span></span>
+        ) : Object.keys(userCriteria).length === 0 ? (
           <span>All {relevantPapers} papers available. Apply filters or proceed to view all results.</span>
         ) : (
           <span>Number of relevant papers: {relevantPapers}</span>

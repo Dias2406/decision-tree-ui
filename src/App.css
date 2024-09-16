@@ -43,6 +43,12 @@
   }
 }
 
+@keyframes ellipsis {
+  0% { content: '.'; }
+  33% { content: '..'; }
+  66% { content: '...'; }
+}
+
 /* Ensure the footer stays at the bottom */
 footer {
   margin-top: auto;
@@ -186,6 +192,15 @@ body {
     width: calc(100% - 40px);
     padding: 0 20px;
   }
+}
+
+
+.loading-dots::after {
+  content: '.';
+  display: inline-block;
+  animation: ellipsis 1.5s infinite;
+  width: 1em;
+  text-align: left;
 }
 
 .footer {

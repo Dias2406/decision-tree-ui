@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './SelectionUI.css';
 
-function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria }) {
+function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRenderComplete }) {
   const [categories, setCategories] = useState({});
   const [categoryMappings, setCategoryMappings] = useState({});
   const [localSelections, setLocalSelections] = useState({});
@@ -11,6 +11,9 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria }) {
   const [rotatingCategories, setRotatingCategories] = useState({}); // New state for category-specific rotation
 
   useEffect(() => {
+    let categoriesFetched = false;
+    let mappingsFetched = false;
+
     console.log('Fetching categories...');
     fetch('/api/categories')
       .then(response => response.json())
@@ -18,6 +21,8 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria }) {
         console.log('Received categories:', data);
         setCategories(data);
         setLocalSelections(Object.fromEntries(Object.keys(data).map(key => [key, []])));
+        categoriesFetched = true;
+        checkRenderComplete();
       })
       .catch(error => console.error('Error fetching categories:', error));
 
@@ -32,9 +37,17 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria }) {
           return acc;
         }, {});
         setCategoryMappings(mappings);
+        mappingsFetched = true;
+        checkRenderComplete();
       })
       .catch(error => console.error('Error fetching category mappings:', error));
-  }, []);
+
+    function checkRenderComplete() {
+      if (categoriesFetched && mappingsFetched) {
+        onRenderComplete();
+      }
+    }
+  }, [onRenderComplete]);
 
   useEffect(() => {
     setSelections(localSelections);
@@ -100,6 +113,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria }) {
 
   const handleSelect = (category, option) => {
     console.log('Handling select:', category, option);
+    setRelevantPapers(null); // Reset relevantPapers to null
     setLocalSelections(prev => {
       const newSelections = { ...prev };
       if (option === 'All') {
@@ -138,6 +152,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria }) {
   };
 
   const handleResetCategory = (mainCategory) => {
+    setRelevantPapers(null); // Reset relevantPapers to null
     setLocalSelections(prev => {
       const newSelections = { ...prev };
       Object.keys(categoryMappings[mainCategory]).forEach(subCategory => {
