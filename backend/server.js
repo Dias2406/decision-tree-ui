@@ -45,9 +45,13 @@ app.get('/api/categories', (req, res) => {
 
     // Convert Sets to sorted Arrays
     Object.keys(categories).forEach(key => {
-      categories[key] = Array.from(categories[key]).sort((a, b) => 
-        a.toLowerCase().localeCompare(b.toLowerCase())
-      );
+      categories[key] = Array.from(categories[key]).sort((a, b) => {
+        // Check if both 'a' and 'b' are strings
+        if (typeof a === 'string' && typeof b === 'string') {
+          return a.toLowerCase().localeCompare(b.toLowerCase());
+        }
+        return 0; 
+      });
     });
 
     console.log('Categories:', categories);
