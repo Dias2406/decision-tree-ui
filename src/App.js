@@ -321,7 +321,7 @@ function App() {
                     </a>
                   )}
                   {descriptor.data.doi && (
-                    <a href={`https://doi.org/${descriptor.data.doi}`} target="_blank" rel="noopener noreferrer" className="table-link">
+                    <a href={`https://${descriptor.data.doi}`} target="_blank" rel="noopener noreferrer" className="table-link">
                       <FaExternalLinkAlt /> DOI
                     </a>
                   )}
