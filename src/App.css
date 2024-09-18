@@ -1141,3 +1141,14 @@ input:checked + .slider:before {
 .star-rating {
   display: flex;
 }
+
+.publication-year {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 5px;
+}
+
+.table-view-container .publication-year {
+  display: inline;
+  margin-left: 10px;
+}

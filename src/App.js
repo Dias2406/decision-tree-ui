@@ -228,6 +228,7 @@ function App() {
           <thead>
             <tr>
               <th>Title</th>
+              <th>Publication Year</th>
               <th>Policy Description</th>
               <th>Findings</th>
               <th>Effect</th>
@@ -263,6 +264,7 @@ function App() {
                     </div>
                   </div>
                 </td>
+                <td>{descriptor.data['publication year'] || 'N/A'}</td>
                 <td>
                   <div className="expandable-cell">
                     <p>{descriptor.data['description of the intervention/policy option summary']}</p>
@@ -649,7 +651,12 @@ function App() {
                 paperDescriptors.map(descriptor => (
                   <div key={descriptor.hash} className="paper-box">
                     <div className="paper-header">
-                      <h3>{descriptor.data.title}</h3>
+                      <div>
+                        <h3>{descriptor.data.title}</h3>
+                        {descriptor.data['publication year'] && (
+                          <div className="publication-year">Publication Year: {descriptor.data['publication year']}</div>
+                        )}
+                      </div>
                       <div className="info-icon-container">
                         <FaInfoCircle 
                           className="info-icon" 
