@@ -1132,6 +1132,7 @@ input:checked + .slider:before {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
+  justify-content: space-between;
 }
 
 .rating-container span {
@@ -1140,6 +1141,16 @@ input:checked + .slider:before {
 
 .star-rating {
   display: flex;
+}
+
+.star-rating svg {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.star-rating svg:hover,
+.star-rating svg:hover ~ svg {
+  color: #ffc107 !important;
 }
 
 .publication-year {
