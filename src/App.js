@@ -571,7 +571,7 @@ function App() {
             This interactive tool helps policymakers identify evidence-based recommendations for improving child outcomes in various contexts.
           </p>
           <p className="small-text">
-            Select your areas of interest, target population, and context using the dropdown menus. The tool will then generate tailored policy recommendations based on current evidence. Use the results to inform your decision-making process and explore effective interventions in your specific setting.
+            Select options in the decision tree menu relevant to your context using the dropdown menus, then click 'View Relevant Papers'. The tool will then filter relevant papers based on your criteria and present them in a list and table view. Use the results to inform your decision-making process and explore effective interventions in your specific setting.
           </p>
         </div>
       </div>
