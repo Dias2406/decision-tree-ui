@@ -6,7 +6,7 @@ function FeedbackModal({ onClose, onSubmit }) {
   const [email, setEmail] = useState('');
   const [organization, setOrganization] = useState('');
   const [feedback, setFeedback] = useState('');
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(null);
   const [hover, setHover] = useState(null);
 
   const handleSubmit = (e) => {
@@ -53,11 +53,11 @@ function FeedbackModal({ onClose, onSubmit }) {
                 return (
                   <FaStar
                     key={index}
-                    color={ratingValue <= (rating || hover) ? "#ffc107" : "#e4e5e9"}
+                    color={ratingValue <= (hover || rating) ? "#ffc107" : "#e4e5e9"}
                     size={20}
                     onClick={() => setRating(ratingValue)}
                     onMouseEnter={() => setHover(ratingValue)}
-                    onMouseLeave={() => setHover(null)}
+                    onMouseLeave={() => setHover(rating)}
                   />
                 );
               })}

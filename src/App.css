@@ -1137,19 +1137,22 @@ input:checked + .slider:before {
 
 .rating-container span {
   margin-right: 10px;
+  flex: 1; 
 }
 
 .star-rating {
   display: flex;
+  flex: 1; 
+  justify-content: flex-start; 
 }
 
 .star-rating svg {
   cursor: pointer;
   transition: color 0.2s ease;
+  margin-right: 5px; 
 }
 
-.star-rating svg:hover,
-.star-rating svg:hover ~ svg {
+.star-rating svg:hover {
   color: #ffc107 !important;
 }
 
