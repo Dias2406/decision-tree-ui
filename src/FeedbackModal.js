@@ -17,7 +17,7 @@ function FeedbackModal({ onClose, onSubmit }) {
   return (
     <div className="modal">
       <div className="modal-content" style={{ maxWidth: '500px' }}>
-        <h2>Provide Feedback</h2>
+        <h2>Please Provide Feedback</h2>
         <form onSubmit={handleSubmit}>
           <input
             type="text"
