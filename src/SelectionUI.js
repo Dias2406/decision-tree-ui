@@ -167,12 +167,16 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
   const sortedOptions = (category) => {
     if (!categories[category] || !optionCounts[category]) return [];
     
-    return categories[category]
-      .filter(option => option !== 'All')
-      .sort((a, b) => {
-        const countDiff = (optionCounts[category][b] || 0) - (optionCounts[category][a] || 0);
-        return countDiff !== 0 ? countDiff : a.localeCompare(b);
-      });
+    const options = categories[category].filter(option => option !== 'All');
+
+    if (category === 'Country') {
+      return options.sort((a, b) => a.localeCompare(b));
+    }
+
+    return options.sort((a, b) => {
+      const countDiff = (optionCounts[category][b] || 0) - (optionCounts[category][a] || 0);
+      return countDiff !== 0 ? countDiff : a.localeCompare(b);
+    });
   };
 
   console.log('Rendering SelectionUI. Categories:', categories);
