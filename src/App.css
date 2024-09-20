@@ -1170,3 +1170,90 @@ input:checked + .slider:before {
   display: inline;
   margin-left: 10px;
 }
+
+@media screen and (max-width: 768px) {
+  .overlay-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .overlay-header-left,
+  .overlay-header-center,
+  .overlay-header-right {
+    margin: 10px 0;
+    justify-content: center;
+  }
+
+  .overlay-button {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .view-toggle {
+    justify-content: center;
+  }
+
+  .table-scroll-wrapper::before,
+  .table-scroll-wrapper::after {
+    width: 50px;
+  }
+
+  .table-scroll-wrapper table {
+    min-width: 100%;
+  }
+
+  .table-scroll-wrapper th,
+  .table-scroll-wrapper td {
+    padding: 10px 5px;
+    font-size: 12px;
+  }
+
+  .expandable-cell {
+    min-height: 60px;
+  }
+
+  .paper-box {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .info-icon-container {
+    position: static;
+    margin-top: 10px;
+  }
+
+  .criteria-box {
+    width: 100%;
+    left: 0;
+    right: 0;
+  }
+}
+
+/* Adjust the blur effect based on screen size */
+@media screen and (max-width: 1200px) {
+  .table-scroll-wrapper::before,
+  .table-scroll-wrapper::after {
+    width: 200px;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .table-scroll-wrapper::before,
+  .table-scroll-wrapper::after {
+    width: 150px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .table-scroll-wrapper::before,
+  .table-scroll-wrapper::after {
+    width: 100px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .table-scroll-wrapper::before,
+  .table-scroll-wrapper::after {
+    width: 50px;
+  }
+}

@@ -561,24 +561,20 @@ function App() {
         Made by Frederico Leite Richardson and Dias Jakupov<br></br>frederico@l4wb-i.org<br></br>dias@l4wb-i.org
       </div>
 
-      <div style={{ backgroundColor: '#EFEFEF', padding: '20px', height: '150px', position: 'relative' }}>
-        {/* Content for the first gray section */}
-      </div>
-
-      <div className="red-box-container">
-        <div className="red-box">
-          <span className="big-text-white-red-box">POLICY DECISION TREE</span>
-        </div>
-      </div>
-
-      <div style={{ backgroundColor: '#EFEFEF', padding: '20px', height: '230px', position: 'relative' }}>
-        <div style={{ maxWidth: '700px', margin: '80px auto 0', textAlign: 'center' }}>
+      <div style={{ backgroundColor: '#EFEFEF', padding: '20px', position: 'relative' }}>
+        <div style={{ maxWidth: '700px', margin: '40px auto', textAlign: 'center' }}>
           <p className="small-text-bold">
             This interactive tool helps policymakers identify evidence-based recommendations for improving child outcomes in various contexts.
           </p>
           <p className="small-text">
             Select options in the decision tree menu relevant to your context using the dropdown menus, then click 'View Relevant Papers'. The tool will then filter relevant papers based on your criteria and present them in a list and table view. Use the results to inform your decision-making process and explore effective interventions in your specific setting.
           </p>
+        </div>
+      </div>
+
+      <div className="red-box-container">
+        <div className="red-box">
+          <span className="big-text-white-red-box">POLICY DECISION TREE</span>
         </div>
       </div>
 
