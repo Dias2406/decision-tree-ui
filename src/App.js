@@ -1,3 +1,7 @@
+// © 2024 Learning for Well-Being Institute. All rights reserved.
+// Policy Decision Tree
+// policydecisions.org
+
 import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import Navbar from './navbar';

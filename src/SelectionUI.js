@@ -1,3 +1,7 @@
+// © 2024 Learning for Well-Being Institute. All rights reserved.
+// Policy Decision Tree
+// policydecisions.org
+
 import React, { useState, useEffect } from 'react';
 import './SelectionUI.css';
 

@@ -1,3 +1,7 @@
+// © 2024 Learning for Well-Being Institute. All rights reserved.
+// Policy Decision Tree
+// policydecisions.org
+
 let lastScrollTop = 0;
 let navbar;
 let navbarHeight;

@@ -1,3 +1,7 @@
+// © 2024 Learning for Well-Being Institute. All rights reserved.
+// Policy Decision Tree
+// policydecisions.org
+
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');

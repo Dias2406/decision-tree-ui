@@ -1,3 +1,7 @@
+// © 2024 Learning for Well-Being Institute. All rights reserved.
+// Policy Decision Tree
+// policydecisions.org
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
