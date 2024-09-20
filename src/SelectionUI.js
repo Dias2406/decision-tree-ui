@@ -167,7 +167,11 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
   const sortedOptions = (category) => {
     if (!categories[category] || !optionCounts[category]) return [];
     
-    const options = categories[category].filter(option => option !== 'All');
+    const options = categories[category].filter(option => {
+      if (option === 'All') return false;
+      if (option === 'Other' && (!optionCounts[category]['Other'] || optionCounts[category]['Other'] === 0)) return false;
+      return true;
+    });
 
     if (category === 'Country') {
       return options.sort((a, b) => a.localeCompare(b));
