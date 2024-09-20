@@ -288,12 +288,14 @@ function App() {
                   </div>
                 </td>
                 <td>
-                  <div className="effect-indicator" style={{ backgroundColor: getEffectColor(descriptor.data.effect) }}>
-                    {descriptor.data.effect?.toUpperCase()}
-                    {descriptor.data.explanation && (
-                      <span className="effect-explanation">{descriptor.data.explanation}</span>
-                    )}
-                  </div>
+                  {descriptor.data.effect ? (
+                    <div className="effect-indicator" style={{ backgroundColor: getEffectColor(descriptor.data.effect) }}>
+                      {descriptor.data.effect?.toUpperCase()}
+                      {descriptor.data.explanation && (
+                        <span className="effect-explanation">{descriptor.data.explanation}</span>
+                      )}
+                    </div>
+                  ) : null}
                 </td>
                 <td>
                   <div className="expandable-cell">
