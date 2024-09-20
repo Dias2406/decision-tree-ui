@@ -6,7 +6,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import Navbar from './navbar';
 import SelectionUI from './SelectionUI';
-import { FaInfoCircle, FaTable, FaList, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaInfoCircle, FaTable, FaList, FaExternalLinkAlt, FaChevronUp } from 'react-icons/fa';
 import LoadingScreen from './LoadingScreen';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
@@ -45,31 +45,36 @@ function App() {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showFeedbackLink, setShowFeedbackLink] = useState(true);
 
-  useEffect(() => {
-    let lastScrollTop = 0;
-    const navbar = document.querySelector('.navbar');
-    const navbarHeight = navbar ? navbar.getBoundingClientRect().height : 0;
+  const [showScrollTopButton, setShowScrollTopButton] = useState(false);
 
-    function handleScroll() {
-      let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-      if (scrollTop > lastScrollTop && scrollTop > navbarHeight * 2) {
-        // Scrolling down & past twice the navbar height
-        navbar.classList.add('navbar--hidden');
-      } else if (scrollTop < lastScrollTop || scrollTop <= navbarHeight) {
-        // Scrolling up or near the top
-        navbar.classList.remove('navbar--hidden');
-      }
-
-      lastScrollTop = scrollTop;
+  const handleOverlayScroll = useCallback((e) => {
+    console.log('Overlay scroll position:', e.target.scrollTop);
+    if (e.target.scrollTop > 300) {
+      setShowScrollTopButton(true);
+    } else {
+      setShowScrollTopButton(false);
     }
+  }, []);
 
-    window.addEventListener('scroll', handleScroll);
+  useEffect(() => {
+    const handleMainScroll = () => {
+      setShowScrollTopButton(window.pageYOffset > 300);
+    };
+
+    window.addEventListener('scroll', handleMainScroll);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleMainScroll);
     };
   }, []);
+
+  const scrollToTop = () => {
+    if (overlayVisible) {
+      document.querySelector('.overlay').scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   const updateProgress = useCallback((checkpoint) => {
     const newProgress = (checkpoint / totalCheckpoints) * 100;
@@ -625,7 +630,16 @@ function App() {
         <a href="https://l4wb-i.org/legal-notice/"> Legal notice</a>
       </footer>
 
-      <div className={`overlay ${overlayVisible ? 'visible' : ''}`}>
+      {showScrollTopButton && (
+        <button className="scroll-to-top" onClick={scrollToTop}>
+          <FaChevronUp />
+        </button>
+      )}
+
+      <div
+        className={`overlay ${overlayVisible ? 'visible' : ''}`}
+        onScroll={handleOverlayScroll}
+      >
         {isOverlayLoading ? (
           <LoadingScreen progress={loadingProgress} />
         ) : (

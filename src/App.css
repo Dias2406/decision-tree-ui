@@ -279,8 +279,8 @@ body {
   align-items: flex-start; /* Align items to the top */
   transition: right 0.3s ease-in-out;
   z-index: 1000;
-  overflow-x: hidden; /* Prevent scrolling of the overlay itself */
-  padding-top: 85px; /* Add padding to push content below the navbar */
+  overflow-y: auto; /* Allow vertical scrolling */
+  padding-top: 85px; /* Adjust if necessary */
 }
 
 .overlay.visible {
@@ -289,12 +289,11 @@ body {
 
 .overlay-content {
   text-align: center;
-  width: 100vw; /* Change this to 100vw */
-  max-width: none; /* Remove or comment out this line */
-  padding: 20px 0; /* Remove left and right padding */
-  overflow: auto; /* Allow scrolling within the overlay content */
-  max-height: calc(100% - 85px); /* Ensure it doesn't overflow the overlay, accounting for navbar height */
-  box-sizing: border-box; /* Include padding in the element's total width and height */
+  width: 100vw;
+  max-width: none;
+  padding: 20px 0;
+  box-sizing: border-box;
+  /* Removed overflow and max-height properties */
 }
 
 .submit-button {
@@ -459,7 +458,7 @@ input:checked + .slider:before {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 300px; /* Increased width for larger gradient effect */
+  width: 100px; /* Increased width for larger gradient effect */
   z-index: 2;
   pointer-events: none;
   opacity: 0;
@@ -484,6 +483,11 @@ input:checked + .slider:before {
   opacity: 1;
 }
 
+.table-scroll-wrapper {
+  max-height: calc(100vh - 200px); /* Adjust this value based on your layout */
+  overflow-y: auto;
+}
+
 .table-scroll-wrapper table {
   width: 100%;
   min-width: 2000px; /* Adjust this value based on your needs */
@@ -492,11 +496,19 @@ input:checked + .slider:before {
   margin-top: 20px;
 }
 
-/* Remove the sticky positioning of the header */
-.table-scroll-wrapper th {
-  position: static;
-  z-index: 1;
+.table-scroll-wrapper thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   background-color: var(--highlight-color);
+}
+
+.table-scroll-wrapper th {
+  background-color: var(--highlight-color);
+  color: white;
+  font-weight: bold;
+  padding: 15px;
+  text-align: left;
 }
 
 .table-scroll-wrapper th,
@@ -1309,4 +1321,33 @@ input:checked + .slider:before {
 .red-box {
   position: relative;
   top: 170px; /* Adjust this value as needed */
+}
+
+.scroll-to-top {
+  position: fixed;
+  bottom: 70px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  z-index: 6000;
+}
+
+.scroll-to-top:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.overlay-scroll-to-top {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
 }
