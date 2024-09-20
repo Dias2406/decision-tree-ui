@@ -349,6 +349,11 @@ function App() {
 
   // New function to handle export
   const handleExport = (format) => {
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      // Mobile device detected
+      alert("Downloads may not work on some mobile devices. Please try on a desktop computer for best results.");
+    }
+
     setIsDownloading(true);
     setDownloadProgress(0);
     setShowDownloadModal(false);
