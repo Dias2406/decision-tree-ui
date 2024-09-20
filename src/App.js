@@ -561,8 +561,8 @@ function App() {
         Made by Frederico Leite Richardson and Dias Jakupov<br></br>frederico@l4wb-i.org<br></br>dias@l4wb-i.org
       </div>
 
-      <div style={{ backgroundColor: '#EFEFEF', padding: '20px', position: 'relative' }}>
-        <div style={{ maxWidth: '700px', margin: '40px auto', textAlign: 'center' }}>
+      <div className="info-section">
+        <div className="info-content">
           <p className="small-text-bold">
             This interactive tool helps policymakers identify evidence-based recommendations for improving child outcomes in various contexts.
           </p>

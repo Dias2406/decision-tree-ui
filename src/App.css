@@ -1257,3 +1257,56 @@ input:checked + .slider:before {
     width: 50px;
   }
 }
+
+/* Add this new style */
+.info-section {
+  background-color: #EFEFEF;
+  padding: 20px;
+  min-height: 230px;
+  height: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.info-content {
+  max-width: 700px;
+  margin: 220px auto 0;
+  text-align: center;
+}
+
+/* Add a media query for smaller screens */
+@media screen and (max-width: 768px) {
+  .info-section {
+    min-height: 230px; /* Slightly reduced minimum height for mobile */
+  }
+  
+  .info-content {
+    margin: 250px auto 0; /* Reduced top margin for mobile */
+  }
+}
+
+/* Add a media query for smaller screens */
+@media screen and (max-width: 470px) {
+  .info-section {
+    min-height: 230px; /* Slightly reduced minimum height for mobile */
+  }
+  
+  .info-content {
+    margin: 300px auto 0; /* Reduced top margin for mobile */
+  }
+}
+
+/* Ensure the red-box-container stays in place */
+.red-box-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+}
+
+/* Adjust the red-box positioning */
+.red-box {
+  position: relative;
+  top: 170px; /* Adjust this value as needed */
+}
