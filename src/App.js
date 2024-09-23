@@ -643,7 +643,7 @@ function App() {
         {isOverlayLoading ? (
           <LoadingScreen progress={loadingProgress} />
         ) : (
-          <div className="overlay-content">
+          <div className="overlay-content" style={{ paddingBottom: '100px' }}>
             <div className="overlay-header">
               <div className="overlay-header-left">
                 <button onClick={handleCloseOverlay} className="overlay-button">Back</button>
