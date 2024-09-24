@@ -1331,19 +1331,41 @@ input:checked + .slider:before {
   color: white;
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 20px;
+  width: 50px; /* Increased size for better visibility */
+  height: 50px; /* Increased size for better visibility */
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.3s;
   z-index: 6000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .scroll-to-top:hover {
   background-color: rgba(0, 0, 0, 0.5);
+  transform: scale(1.1);
+}
+
+.scroll-to-top svg {
+  width: 24px; /* Adjust size as needed */
+  height: 24px; /* Adjust size as needed */
+  fill: white; /* Ensure the chevron is visible */
+}
+
+/* Media Queries for Mobile Devices */
+@media (max-width: 768px) {
+  .scroll-to-top {
+    width: 40px;
+    height: 40px;
+    bottom: 60px;
+    right: 15px;
+  }
+
+  .scroll-to-top svg {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .overlay-scroll-to-top {

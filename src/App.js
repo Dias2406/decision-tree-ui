@@ -6,7 +6,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import Navbar from './navbar';
 import SelectionUI from './SelectionUI';
-import { FaInfoCircle, FaTable, FaList, FaExternalLinkAlt, FaChevronUp } from 'react-icons/fa';
+import { FaInfoCircle, FaTable, FaList, FaExternalLinkAlt } from 'react-icons/fa';
 import LoadingScreen from './LoadingScreen';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
@@ -632,7 +632,16 @@ function App() {
 
       {showScrollTopButton && (
         <button className="scroll-to-top" onClick={scrollToTop}>
-          <FaChevronUp />
+          {/* Inline SVG for Chevron */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M12 8.586l-6.293 6.293a1 1 0 101.414 1.414L12 11.414l4.879 4.879a1 1 0 001.414-1.414L12 8.586z"/>
+          </svg>
         </button>
       )}
 
