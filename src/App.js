@@ -11,6 +11,8 @@ import LoadingScreen from './LoadingScreen';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import FeedbackModal from './FeedbackModal';
+import DownloadModal from './DownloadModal';
+import InfoModal from './InfoModal';
 
 function capitalizeWords(str) {
   return str.replace(/\b\w/g, l => l.toUpperCase());
@@ -46,6 +48,8 @@ function App() {
   const [showFeedbackLink, setShowFeedbackLink] = useState(true);
 
   const [showScrollTopButton, setShowScrollTopButton] = useState(false);
+
+  const [showInfoModal, setShowInfoModal] = useState(false);
 
   const handleOverlayScroll = useCallback((e) => {
     console.log('Overlay scroll position:', e.target.scrollTop);
@@ -348,56 +352,13 @@ function App() {
   );
 
   // New function to handle the download button click
-  const handleDownload = () => {
-    setShowDownloadModal(true);
-  };
-
-  // New function to handle export
-  const handleExport = (format) => {
-    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-      // Mobile device detected
-      alert("Downloads may not work on some mobile devices. Please try on a desktop computer for best results.");
-    }
-
+  const handleDownload = (format) => {
     setIsDownloading(true);
     setDownloadProgress(0);
     setShowDownloadModal(false);
 
-    // Simulate initial delay
-    setTimeout(() => {
-      // Fetch any missing paper data
-      const hashesToFetch = paperDescriptors.map(descriptor => descriptor.hash);
-      const hashesNotFetched = hashesToFetch.filter(hash => !paperData[hash]);
-
-      if (hashesNotFetched.length > 0) {
-        Promise.all(hashesNotFetched.map(hash =>
-          fetch(`/api/paper/${hash}`)
-            .then(response => response.json())
-            .then(data => ({ hash, data }))
-        )).then(results => {
-          // Update paperData state
-          const newPaperData = {};
-          results.forEach(({ hash, data }) => {
-            newPaperData[hash] = data;
-          });
-      
-          // Create a local variable with the updated paperData
-          const updatedPaperData = { ...paperData, ...newPaperData };
-          setPaperData(updatedPaperData);
-      
-          // Proceed to generate the file with updatedPaperData
-          generateAndDownloadFile(format, updatedPaperData);
-        }).catch(error => {
-          console.error('Error fetching paper data for download:', error);
-          setIsDownloading(false);
-          setDownloadProgress(0);
-          // Handle error, maybe notify the user
-        });
-      } else {
-        // All data already fetched, proceed to generate file
-        generateAndDownloadFile(format, paperData);
-      }
-    }, 500); // 500ms initial delay
+    // Start the download process
+    generateAndDownloadFile(format, paperData);
   };
 
   // Function to generate and download the file
@@ -576,9 +537,9 @@ function App() {
           <p className="small-text-bold">
             This interactive tool helps policymakers identify evidence-based recommendations for improving child outcomes in various contexts.
           </p>
-          <p className="small-text">
-            Select options in the decision tree menu relevant to your context using the dropdown menus, then click 'View Relevant Papers'. The tool will then filter relevant papers based on your criteria and present them in a list and table view. Use the results to inform your decision-making process and explore effective interventions in your specific setting.
-          </p>
+          <button className="info-button" onClick={() => setShowInfoModal(true)}>
+            <FaInfoCircle /> Learn More
+          </button>
         </div>
       </div>
 
@@ -623,7 +584,7 @@ function App() {
       )}
 
       <footer className="footer">
-        Copyright © 2024 | Learning for Well-being –
+        Copyright © 2024 | Learning for well-being –
         <a href="https://l4wb-i.org/privacy-policy/"> Privacy Policy</a> –
         <a href="https://l4wb-i.org/cookies-policy/"> Cookies policy</a> –
         <a href="https://l4wb-i.org/general-terms-and-conditions/"> General terms and conditions</a> –
@@ -658,7 +619,7 @@ function App() {
                 <button onClick={handleCloseOverlay} className="overlay-button">Back</button>
               </div>
               <div className="overlay-header-center">
-                <button onClick={handleDownload} className="overlay-button">Download Table Data</button>
+                <button onClick={() => setShowDownloadModal(true)} className="overlay-button">Download Table Data</button>
               </div>
               <div className="overlay-header-right">
                 <div className="view-toggle">
@@ -799,16 +760,11 @@ function App() {
         )}
       </div>
 
-      {/* Modal for selecting download format */}
       {showDownloadModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Select Download Format</h3>
-            <button onClick={() => handleExport('csv')}>CSV</button>
-            <button onClick={() => handleExport('xlsx')}>XLSX</button>
-            <button class = "cancel-button" onClick={() => setShowDownloadModal(false)}>Cancel</button>
-          </div>
-        </div>
+        <DownloadModal
+          onClose={() => setShowDownloadModal(false)}
+          onDownload={handleDownload}
+        />
       )}
 
       {isDownloading && (
@@ -827,6 +783,8 @@ function App() {
           onSubmit={handleFeedbackSubmit}
         />
       )}
+
+      {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} />}
     </div>
   );
 }

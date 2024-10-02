@@ -2,7 +2,7 @@
 // Policy Decision Tree
 // policydecisions.org
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaStar } from 'react-icons/fa';
 
 function FeedbackModal({ onClose, onSubmit }) {
@@ -12,14 +12,24 @@ function FeedbackModal({ onClose, onSubmit }) {
   const [feedback, setFeedback] = useState('');
   const [rating, setRating] = useState(null);
   const [hover, setHover] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit({ name, email, organization, feedback, rating });
   };
 
+  const handleClose = () => {
+    setIsVisible(false);
+    setTimeout(onClose, 300); // Wait for the animation to finish before closing
+  };
+
   return (
-    <div className="modal">
+    <div className={`modal ${isVisible ? 'visible' : ''}`}>
       <div className="modal-content" style={{ maxWidth: '500px' }}>
         <h2>Please Provide Feedback</h2>
         <form onSubmit={handleSubmit}>
@@ -68,7 +78,7 @@ function FeedbackModal({ onClose, onSubmit }) {
             </div>
           </div>
           <button type="submit" className="submit-button">Submit Feedback</button>
-          <button type="button" className="cancel-button" onClick={onClose}>Cancel</button>
+          <button type="button" className="cancel-button" onClick={handleClose}>Cancel</button>
         </form>
       </div>
     </div>
