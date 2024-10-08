@@ -1618,3 +1618,8 @@ input:checked + .slider:before {
   cursor: pointer;
   color: black;
 }
+
+.modal-content.download-modal {
+  width: 500px; /* Adjust this value as needed */
+  max-width: 90%;
+}

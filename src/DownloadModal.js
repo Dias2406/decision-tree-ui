@@ -14,7 +14,7 @@ function DownloadModal({ onClose, onDownload }) {
 
   return (
     <div className={`modal ${isVisible ? 'visible' : ''}`}>
-      <div className="modal-content">
+      <div className="modal-content download-modal">
         <h2>Download Options</h2>
         <p>Choose a format to download your selected papers:</p>
         <button onClick={() => onDownload('csv')}>Download as CSV</button>
