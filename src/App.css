@@ -249,12 +249,99 @@ body {
   bottom: 0;
   background-color: var(--highlight-color);
   color: white;
-  padding: 10px;
+  padding: 10px 20px;
   z-index: 1000;
-  text-align: center;
   font-family: 'Noto Sans', sans-serif;
   font-weight: bold;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.social-media-link,
+.papers-count-text,
+.feedback-link {
+  flex: 1;
+  min-width: 200px;
+  text-align: center;
+  margin: 5px 0;
+}
+
+.feedback-link span {
+  color: white; /* Set default color to white */
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.feedback-link span:hover {
+  color: #FFD700; /* Gold color for hover effect, complementing the red theme */
+}
+
+/* Media query for smaller screens */
+@media screen and (max-width: 768px) {
+  .floating-papers-count {
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .social-media-link,
+  .papers-count-text,
+  .feedback-link {
+    flex: none;
+    width: 100%;
+    text-align: center;
+    margin: 5px 0;
+  }
+
+  .feedback-link {
+    order: 3; /* Move feedback link to the bottom on mobile */
+  }
+}
+
+.social-media-link {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.social-media-link span {
+  margin-right: 10px;
+  font-size: 14px;
+}
+
+.linkedin-link {
+  color: white;
+  font-size: 20px;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.linkedin-link:hover {
+  color: #0077b5; /* LinkedIn's brand color */
+}
+
+.papers-count-text {
+  flex: 2;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.feedback-link {
+  flex: 1;
+  text-align: right;
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.feedback-link:hover {
+  color: #f0f0f0;
 }
 
 /* Add this new style for when the element sticks to the top */
@@ -264,6 +351,28 @@ body {
   left: 0;
   right: 0;
   bottom: auto;
+}
+
+/* Media query for smaller screens */
+@media screen and (max-width: 768px) {
+  .floating-papers-count {
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .social-media-link,
+  .papers-count-text,
+  .feedback-link {
+    flex: none;
+    width: 100%;
+    text-align: center;
+    margin: 5px 0;
+  }
+
+  .feedback-link {
+    order: 3; /* Move feedback link to the bottom on mobile */
+  }
 }
 
 .overlay {
@@ -1623,3 +1732,4 @@ input:checked + .slider:before {
   width: 500px; /* Adjust this value as needed */
   max-width: 90%;
 }
+

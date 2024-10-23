@@ -191,39 +191,43 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
 
   return (
     <div className="selection-ui">
-      {Object.entries(categoryMappings).map(([mainCategory, subcategories]) => (
-        <div key={mainCategory} className="main-category">
-          <h2>{mainCategory}</h2>
-          <button className="reset-button" onClick={() => handleResetCategory(mainCategory)} title="Reset all options in this category">
-            <i className={`fas fa-sync-alt ${rotatingCategories[mainCategory] ? 'rotate' : ''}`}></i>
-          </button>
-          {Object.entries(subcategories).map(([category]) => (
-            <div key={category} className="category">
-              <h3>{category}</h3>
-              <select
-                value={localSelections[category] && localSelections[category].length === categories[category].length ? 'All' : ''}
-                onChange={(e) => handleSelect(category, e.target.value)}
-              >
-                <option value="">Select an option...</option>
-                <option value="All">All</option>
-                {sortedOptions(category).map(option => (
-                  <option key={option} value={option}>
-                    {option} ({optionCounts[category]?.[option] || 0} papers)
-                  </option>
-                ))}
-              </select>
-              <div className="selected-options">
-                {localSelections[category] && localSelections[category].map(option => (
-                  <span key={option} className="selected-option">
-                    {option}
-                    <button onClick={() => handleSelect(category, option)}>×</button>
-                  </span>
-                ))}
-              </div>
+      <div className="selection-grid">
+        {Object.entries(categoryMappings).map(([mainCategory, subcategories]) => (
+          <div key={mainCategory} className="main-category">
+            <h2>{mainCategory}</h2>
+            <button className="reset-button" onClick={() => handleResetCategory(mainCategory)} title="Reset all options in this category">
+              <i className={`fas fa-sync-alt ${rotatingCategories[mainCategory] ? 'rotate' : ''}`}></i>
+            </button>
+            <div className="subcategory-grid">
+              {Object.entries(subcategories).map(([category]) => (
+                <div key={category} className="category">
+                  <h3>{category}</h3>
+                  <select
+                    value={localSelections[category] && localSelections[category].length === categories[category].length ? 'All' : ''}
+                    onChange={(e) => handleSelect(category, e.target.value)}
+                  >
+                    <option value="">Select an option...</option>
+                    <option value="All">All</option>
+                    {sortedOptions(category).map(option => (
+                      <option key={option} value={option}>
+                        {option} ({optionCounts[category]?.[option] || 0} papers)
+                      </option>
+                    ))}
+                  </select>
+                  <div className="selected-options">
+                    {localSelections[category] && localSelections[category].map(option => (
+                      <span key={option} className="selected-option">
+                        {option}
+                        <button onClick={() => handleSelect(category, option)}>×</button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import Navbar from './navbar';
 import SelectionUI from './SelectionUI';
-import { FaInfoCircle, FaTable, FaList, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaInfoCircle, FaTable, FaList, FaExternalLinkAlt, FaLinkedin } from 'react-icons/fa';
 import LoadingScreen from './LoadingScreen';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
@@ -502,7 +502,7 @@ function App() {
       if (response.ok) {
         setShowFeedbackModal(false);
         alert('Thank you for your feedback!');
-        setShowFeedbackLink(true); // Show the feedback link again
+        // Don't set showFeedbackLink to false here
       } else {
         alert('Failed to submit feedback. Please try again.');
       }
@@ -559,12 +559,32 @@ function App() {
       </div>
 
       <div className="floating-papers-count">
-        {relevantPapers === null ? (
-          <span>Number of relevant papers: <span className="loading-dots">...</span></span>
-        ) : Object.keys(userCriteria).length === 0 ? (
-          <span>All {relevantPapers} papers available. Apply filters or proceed to view all results.</span>
-        ) : (
-          <span>Number of relevant papers: {relevantPapers}</span>
+        <div className="social-media-link">
+          <span>Follow us on social media:</span>
+          <a 
+            href="https://www.linkedin.com/company/l4wbi/posts/?feedView=all" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="linkedin-link"
+          >
+            <FaLinkedin />
+          </a>
+        </div>
+        <div className="papers-count-text">
+          {relevantPapers === null ? (
+            <span>Number of relevant papers: <span className="loading-dots">...</span></span>
+          ) : Object.keys(userCriteria).length === 0 ? (
+            <span>All {relevantPapers} papers available. Apply filters or proceed to view all results.</span>
+          ) : (
+            <span>Number of relevant papers: {relevantPapers}</span>
+          )}
+        </div>
+        {showFeedbackLink && (
+          <div className="feedback-link">
+            <span onClick={() => setShowFeedbackModal(true)}>
+              Give us feedback
+            </span>
+          </div>
         )}
       </div>
 
@@ -572,19 +592,8 @@ function App() {
         <button onClick={handleSubmit} className="submit-button" style={{ fontSize: '1.5em', padding: '15px 30px', width: '300px' }}>View Relevant Papers</button>
       </div>
 
-      {showFeedbackLink && (
-        <div className="feedback-link-container">
-          <span 
-            className="feedback-link" 
-            onClick={() => setShowFeedbackModal(true)}
-          >
-            Please provide feedback
-          </span>
-        </div>
-      )}
-
       <footer className="footer">
-        Copyright © 2024 | Learning for well-being –
+        Copyright © 2024 | Learning for Well-being Institute –
         <a href="https://l4wb-i.org/privacy-policy/"> Privacy Policy</a> –
         <a href="https://l4wb-i.org/cookies-policy/"> Cookies policy</a> –
         <a href="https://l4wb-i.org/general-terms-and-conditions/"> General terms and conditions</a> –
