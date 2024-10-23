@@ -2,7 +2,7 @@
 // Policy Decision Tree
 // policydecisions.org
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './SelectionUI.css';
 
 function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRenderComplete }) {
@@ -11,8 +11,57 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
   const [localSelections, setLocalSelections] = useState({});
   const [userCriteria, setLocalUserCriteria] = useState({});
   const [optionCounts, setOptionCounts] = useState({});
-  const [rotate, setRotate] = useState(false); // New state variable
-  const [rotatingCategories, setRotatingCategories] = useState({}); // New state for category-specific rotation
+  const [rotatingCategories, setRotatingCategories] = useState({});
+
+  const updateUserCriteria = useCallback((selections) => {
+    const criteria = Object.entries(selections).reduce((acc, [category, options]) => {
+      if (options.length > 0) {
+        acc[category] = options;
+      }
+      return acc;
+    }, {});
+    setLocalUserCriteria(criteria);
+    setUserCriteria(criteria);
+    console.log('User Criteria:', criteria);
+  }, [setUserCriteria]);
+
+  const updatePaperCount = useCallback((criteria) => {
+    console.log('Sending criteria:', criteria);
+    fetch('/api/paper-count', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(criteria),
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Received data:', data);
+        setRelevantPapers(data.count);
+      })
+      .catch(error => console.error('Error fetching paper count:', error));
+  }, [setRelevantPapers]);
+
+  const fetchOptionCount = useCallback((category, option) => {
+    fetch('/api/paper-count-for-option', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userCriteria, category, option }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        setOptionCounts(prev => ({
+          ...prev,
+          [category]: {
+            ...prev[category],
+            [option]: data.count,
+          },
+        }));
+      })
+      .catch(error => console.error('Error fetching option count:', error));
+  }, [userCriteria, setOptionCounts]);
 
   useEffect(() => {
     let categoriesFetched = false;
@@ -56,7 +105,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
   useEffect(() => {
     setSelections(localSelections);
     updateUserCriteria(localSelections);
-  }, [localSelections, setSelections]);
+  }, [localSelections, setSelections, updateUserCriteria]);
 
   useEffect(() => {
     if (Object.keys(userCriteria).length > 0) {
@@ -75,7 +124,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
         })
         .catch(error => console.error('Error fetching total paper count:', error));
     }
-  }, [userCriteria]);
+  }, [userCriteria, updatePaperCount, setRelevantPapers]); // Added setRelevantPapers to the dependency array
 
   useEffect(() => {
     // Prefetch option counts for all categories and options
@@ -84,36 +133,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
         fetchOptionCount(category, option);
       });
     });
-  }, [categories, userCriteria]);
-
-  const updateUserCriteria = (selections) => {
-    const criteria = Object.entries(selections).reduce((acc, [category, options]) => {
-      if (options.length > 0) {
-        acc[category] = options;
-      }
-      return acc;
-    }, {});
-    setLocalUserCriteria(criteria);
-    setUserCriteria(criteria);
-    console.log('User Criteria:', criteria);
-  };
-
-  const updatePaperCount = (criteria) => {
-    console.log('Sending criteria:', criteria);
-    fetch('/api/paper-count', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(criteria),
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Received data:', data);
-        setRelevantPapers(data.count);
-      })
-      .catch(error => console.error('Error fetching paper count:', error));
-  };
+  }, [categories, fetchOptionCount]);
 
   const handleSelect = (category, option) => {
     console.log('Handling select:', category, option);
@@ -132,27 +152,6 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
       console.log('New selections:', newSelections);
       return newSelections;
     });
-  };
-
-  const fetchOptionCount = (category, option) => {
-    fetch('/api/paper-count-for-option', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ userCriteria, category, option }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        setOptionCounts(prev => ({
-          ...prev,
-          [category]: {
-            ...prev[category],
-            [option]: data.count,
-          },
-        }));
-      })
-      .catch(error => console.error('Error fetching option count:', error));
   };
 
   const handleResetCategory = (mainCategory) => {
