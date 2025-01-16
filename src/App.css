@@ -1581,6 +1581,7 @@ input:checked + .slider:before {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box; /* Add this */
 }
 
 .info-box h2 {
@@ -1620,10 +1621,12 @@ input:checked + .slider:before {
   padding-right: 10px;
 }
 
-.how-to-use ol, .literature-source p {
+.how-to-use ol {
   margin: 0;
-  padding-left: 20px;
+  padding-left: 20px; /* Reduce this value */
   text-align: left;
+  list-style-position: outside; /* Add this */
+  padding-right: 10px; /* Add this to prevent text from touching the right edge */
 }
 
 .how-to-use li {
@@ -1755,6 +1758,22 @@ input:checked + .slider:before {
   .info-grid {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+}
+
+/* Add these new mobile-specific adjustments */
+@media (max-width: 768px) {
+  .how-to-use ol {
+    padding-left: 25px; /* Slightly increase padding for mobile */
+    margin-right: 5px; /* Add some right margin */
+  }
+  
+  .info-box {
+    padding: 15px 20px; /* Adjust horizontal padding */
+  }
+  
+  .scrollable-box-content {
+    padding-right: 5px; /* Reduce right padding on mobile */
   }
 }
 
