@@ -232,3 +232,109 @@
         border-radius: 10px;
     }
 }
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.category-header h3 {
+    margin: 0;
+}
+
+.info-icon-container {
+    position: relative;
+    display: inline-block;
+}
+
+.info-icon {
+    color: var(--highlight-color);
+    cursor: pointer;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.info-icon:hover {
+    color: #8B1811;
+}
+
+.criteria-box {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%) scale(0.95);
+    background-color: black;
+    color: white;
+    padding: 12px 15px;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 250px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.criteria-box::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 12px;
+    height: 12px;
+    background-color: black;
+}
+
+/* Desktop hover behavior */
+@media (hover: hover) {
+    .info-icon-container:hover .criteria-box {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) scale(1);
+        pointer-events: auto;
+    }
+}
+
+/* Mobile touch behavior */
+.criteria-box.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) scale(1);
+    pointer-events: auto;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+    .criteria-box {
+        width: 200px;
+        font-size: 13px;
+        padding: 10px 12px;
+    }
+    
+    .info-icon {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .criteria-box {
+        width: 180px;
+        left: auto;
+        right: 0;
+        transform: translateX(0) scale(0.95);
+    }
+
+    .criteria-box.show {
+        transform: translateX(0) scale(1);
+    }
+
+    .criteria-box::before {
+        left: auto;
+        right: 10px;
+    }
+}

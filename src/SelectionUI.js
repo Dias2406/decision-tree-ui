@@ -4,6 +4,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import './SelectionUI.css';
+import { FaInfoCircle } from 'react-icons/fa';
 
 function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRenderComplete }) {
   const [categories, setCategories] = useState({});
@@ -12,6 +13,26 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
   const [userCriteria, setLocalUserCriteria] = useState({});
   const [optionCounts, setOptionCounts] = useState({});
   const [rotatingCategories, setRotatingCategories] = useState({});
+  const [categoryDefinitions, setCategoryDefinitions] = useState({});
+  const [showTooltip, setShowTooltip] = useState({});
+
+  const handleTooltipTouch = (category, event) => {
+    event.preventDefault();
+    setShowTooltip(prev => ({
+      ...prev,
+      [category]: !prev[category]
+    }));
+  };
+
+  useEffect(() => {
+    fetch('/api/category-definitions')
+      .then(response => response.json())
+      .then(data => {
+        console.log('Received category definitions:', data);
+        setCategoryDefinitions(data);
+      })
+      .catch(error => console.error('Error fetching category definitions:', error));
+  }, []);
 
   const updateUserCriteria = useCallback((selections) => {
     const criteria = Object.entries(selections).reduce((acc, [category, options]) => {
@@ -200,7 +221,18 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
             <div className="subcategory-grid">
               {Object.entries(subcategories).map(([category]) => (
                 <div key={category} className="category">
-                  <h3>{category}</h3>
+                  <div className="category-header">
+                    <h3>{category}</h3>
+                    <div 
+                      className="info-icon-container"
+                      onTouchStart={(e) => handleTooltipTouch(category, e)}
+                    >
+                      <FaInfoCircle className="info-icon" />
+                      <div className={`criteria-box ${showTooltip[category] ? 'show' : ''}`}>
+                        <p>{categoryDefinitions[category] || `Definition for ${category}`}</p>
+                      </div>
+                    </div>
+                  </div>
                   <select
                     value={localSelections[category] && localSelections[category].length === categories[category].length ? 'All' : ''}
                     onChange={(e) => handleSelect(category, e.target.value)}

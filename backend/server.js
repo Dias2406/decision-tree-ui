@@ -329,5 +329,22 @@ app.post('/api/submit-feedback', (req, res) => {
     });
 });
 
+app.get('/api/category-definitions', (req, res) => {
+  const db = new sqlite3.Database(dbPath);
+  db.all("SELECT category, definition FROM category_definitions", [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching category definitions:', err);
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    const definitions = rows.reduce((acc, row) => {
+      acc[row.category] = row.definition;
+      return acc;
+    }, {});
+    res.json(definitions);
+  });
+  db.close();
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
