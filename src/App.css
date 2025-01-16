@@ -1619,6 +1619,7 @@ input:checked + .slider:before {
   overflow-y: auto;
   flex-grow: 1;
   padding-right: 10px;
+  text-align: left; /* Add this line to ensure left alignment */
 }
 
 .how-to-use ol {
