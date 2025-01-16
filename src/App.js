@@ -327,19 +327,19 @@ function App() {
                   </div>
                 </td>
                 <td>
-                  {descriptor.data.link && (
-                    <a href={descriptor.data.link} target="_blank" rel="noopener noreferrer" className="table-link">
+                  {(descriptor.data.doi || descriptor.data.link) && (
+                    <a 
+                      href={descriptor.data.doi ? `https://${descriptor.data.doi}` : descriptor.data.link} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="table-link"
+                    >
                       <FaExternalLinkAlt /> View
                     </a>
                   )}
                   {descriptor.data.pdf && (
                     <a href={descriptor.data.pdf} target="_blank" rel="noopener noreferrer" className="table-link">
                       <FaExternalLinkAlt /> PDF
-                    </a>
-                  )}
-                  {descriptor.data.doi && (
-                    <a href={`https://${descriptor.data.doi}`} target="_blank" rel="noopener noreferrer" className="table-link">
-                      <FaExternalLinkAlt /> DOI
                     </a>
                   )}
                 </td>
@@ -680,19 +680,19 @@ function App() {
                     </div>
                     
                     <div className="paper-links">
-                      {descriptor.data.link && (
-                        <a href={descriptor.data.link} target="_blank" rel="noopener noreferrer" className="paper-link">
+                      {(descriptor.data.doi || descriptor.data.link) && (
+                        <a 
+                          href={descriptor.data.doi ? `https://${descriptor.data.doi}` : descriptor.data.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="paper-link"
+                        >
                           View Paper <FaExternalLinkAlt />
                         </a>
                       )}
                       {descriptor.data.pdf && (
                         <a href={descriptor.data.pdf} target="_blank" rel="noopener noreferrer" className="paper-link">
                           PDF <FaExternalLinkAlt />
-                        </a>
-                      )}
-                      {descriptor.data.doi && (
-                        <a href={`https://${descriptor.data.doi}`} target="_blank" rel="noopener noreferrer" className="paper-link">
-                          DOI <FaExternalLinkAlt />
                         </a>
                       )}
                     </div>
