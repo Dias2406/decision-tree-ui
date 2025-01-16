@@ -338,3 +338,30 @@
         right: 10px;
     }
 }
+
+.instruction-blurb {
+    margin: 20px 0;
+    padding: 16px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.instruction-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.instruction-content .info-icon {
+    color: #0d6efd;
+    font-size: 1.2em;
+    margin-top: 3px;
+}
+
+.instruction-content p {
+    margin: 0;
+    color: #495057;
+    line-height: 1.5;
+    font-size: 1rem;
+}

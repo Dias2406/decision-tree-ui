@@ -16,6 +16,16 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
   const [categoryDefinitions, setCategoryDefinitions] = useState({});
   const [showTooltip, setShowTooltip] = useState({});
 
+  // Add instruction blurb component
+  const InstructionBlurb = () => (
+    <div className="instruction-blurb">
+      <div className="instruction-content">
+        <FaInfoCircle className="info-icon" />
+        <p>You'll be presented with many selection options below. Take your time to select all relevant criteria for your context. Your selections will help find the most relevant policy research for you.</p>
+      </div>
+    </div>
+  );
+
   const handleTooltipTouch = (category, event) => {
     event.preventDefault();
     setShowTooltip(prev => ({
@@ -197,7 +207,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
       return true;
     });
 
-    if (category === 'Country') {
+    if (category === 'Country' || category === 'Region') {
       return options.sort((a, b) => a.localeCompare(b));
     }
 
@@ -211,6 +221,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
 
   return (
     <div className="selection-ui">
+      <InstructionBlurb />
       <div className="selection-grid">
         {Object.entries(categoryMappings).map(([mainCategory, subcategories]) => (
           <div key={mainCategory} className="main-category">
