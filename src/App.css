@@ -1558,19 +1558,20 @@ input:checked + .slider:before {
 /* Updated and new styles for the info modal */
 .modal-content.info-modal.large-modal {
   width: 90%;
-  max-width: 1200px;
-  height: 80vh;
-  max-height: 800px;
-  padding: 30px;
-  overflow: hidden;
+  max-width: 1000px; /* Increased from 900px for more width */
+  height: auto;
+  min-height: auto;
+  max-height: 80vh;
+  padding: 25px;
+  overflow-y: auto; /* Enable vertical scrolling */
+  margin: 20px;
 }
 
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
   gap: 15px;
-  height: 100%;
+  height: auto;
 }
 
 .info-box {
@@ -1591,6 +1592,26 @@ input:checked + .slider:before {
   background-color: #f5f5f5;
   padding: 10px 0;
   z-index: 1;
+  font-size: 24px; /* Add default size for desktop */
+}
+
+/* Add responsive styles for mobile */
+@media (max-width: 768px) {
+  .info-box h2 {
+    font-size: 18px; /* Smaller font size for mobile */
+    padding: 8px 0; /* Slightly reduced padding */
+  }
+  
+  .info-box {
+    padding: 15px; /* Slightly reduced padding for the box itself */
+  }
+}
+
+/* Even smaller screens */
+@media (max-width: 480px) {
+  .info-box h2 {
+    font-size: 16px; /* Even smaller font size for very small devices */
+  }
 }
 
 .scrollable-box-content {
@@ -1607,11 +1628,6 @@ input:checked + .slider:before {
 
 .how-to-use li {
   margin-bottom: 10px;
-}
-
-.definitions {
-  grid-row: 1 / 3;
-  grid-column: 2 / 3;
 }
 
 .scrollable-content {
@@ -1659,12 +1675,11 @@ input:checked + .slider:before {
 @media (max-width: 768px) {
   .info-grid {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto;
   }
 
   .how-to-use,
-  .literature-source,
-  .definitions {
+  .literature-source {
     grid-column: 1 / 2;
   }
 
@@ -1674,10 +1689,6 @@ input:checked + .slider:before {
 
   .literature-source {
     grid-row: 2 / 3;
-  }
-
-  .definitions {
-    grid-row: 3 / 4;
   }
 }
 
@@ -1731,5 +1742,19 @@ input:checked + .slider:before {
 .modal-content.download-modal {
   width: 500px; /* Adjust this value as needed */
   max-width: 90%;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .modal-content.info-modal.large-modal {
+    height: auto;
+    max-height: 85vh;
+    padding: 20px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 }
 
