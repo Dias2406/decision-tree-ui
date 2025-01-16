@@ -46,11 +46,18 @@ function InfoModal({ onClose }) {
                 The literature featured in this tool is the result of a compilation process carried out by our team. We employ a combination of automated search tools and manual research techniques, using carefully selected search terms to gather relevant papers.
               </p>
               <p>
-                <br></br>Our team then conducts a thorough assessment of each paper. We evaluate them based on several key criteria, including conceptual coherence, methodological appropriateness, and scientific validity, ensuring that only high-quality, relevant research makes it into our tool.
+                Our team then conducts a thorough assessment of each paper. We evaluate them based on several key criteria, including conceptual coherence, methodological appropriateness, and scientific validity, ensuring that only high-quality, relevant research makes it into our tool.
               </p>
               <p>
-                <br></br>After the selection process, our team extracts the most pertinent information, distilling complex research into accessible insights. This extracted knowledge is then compiled and organized to create what you see on this website.
+                After the selection process, our team extracts the most pertinent information, distilling complex research into accessible insights. This extracted knowledge is then compiled and organized to create what you see on this website.
               </p>
+            </div>
+          </div>
+          <div className="info-box definitions">
+            <h2>Definitions</h2>
+            <div className="scrollable-content">
+              <h3>Sorry for the inconvenience!</h3>
+              <p>Our team is working on adding definitions to the tool. Please check back soon.</p>
             </div>
           </div>
         </div>
