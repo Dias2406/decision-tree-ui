@@ -379,24 +379,89 @@ body {
 @media (max-width: 768px) {
     .criteria-box {
         position: fixed;
-        left: 50% !important; /* Override direction-aware positioning on mobile */
+        left: 50% !important;
         right: auto !important;
-        top: 50%;
+        top: 50vh !important;
         transform: translate(-50%, -50%) scale(0.95) !important;
         width: min(300px, 85vw);
         margin: 0;
         padding: 20px;
         font-size: 16px;
+        max-height: 80vh;
+        overflow-y: auto; /* Allow scrolling within the box on mobile */
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     }
 
-    .criteria-box.show,
-    .info-icon-container.right-aligned .criteria-box.show,
-    .info-icon-container.left-aligned .criteria-box.show {
+    /* Ensure the tooltip is visible immediately on mobile */
+    .criteria-box.show {
         transform: translate(-50%, -50%) scale(1) !important;
+        opacity: 1;
+        visibility: visible;
     }
 
+    /* Create a backdrop for mobile */
+    .criteria-box::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+    }
+
+    /* Hide the arrow on mobile */
     .criteria-box::before {
         display: none;
+    }
+
+    /* Prevent body scroll but maintain position */
+    body.tooltip-open {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Add a close button for mobile */
+    .criteria-box::after {
+        content: '×';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 24px;
+        height: 24px;
+        background: none;
+        color: white;
+        font-size: 24px;
+        line-height: 24px;
+        text-align: center;
+        cursor: pointer;
+        z-index: 2;
+    }
+}
+
+/* Smaller mobile screens */
+@media (max-width: 480px) {
+    .criteria-box {
+        width: min(280px, 90vw);
+        padding: 15px;
+        /* Adjust vertical position for better visibility on small screens */
+        top: 40vh !important;
+    }
+}
+
+/* Handle landscape orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+    .criteria-box {
+        top: 0 !important;
+        transform: translateX(-50%) scale(0.95) !important;
+        height: 100vh;
+        max-height: 100vh;
+    }
+
+    .criteria-box.show {
+        transform: translateX(-50%) scale(1) !important;
     }
 }
 

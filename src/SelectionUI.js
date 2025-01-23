@@ -36,7 +36,10 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
 
   const handleTooltipTouch = (category, event) => {
     event.preventDefault();
-    const position = determineTooltipPosition(event);
+    event.stopPropagation();
+    
+    // Store current scroll position
+    const scrollPos = window.scrollY;
     
     // Close any other open tooltips
     const newTooltipState = {};
@@ -45,23 +48,34 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
     });
     setShowTooltip(newTooltipState);
 
-    // Toggle body scroll lock
+    // Toggle body scroll lock while maintaining scroll position
     if (!showTooltip[category]) {
       document.body.classList.add('tooltip-open');
+      document.body.style.top = `-${scrollPos}px`;
     } else {
       document.body.classList.remove('tooltip-open');
+      document.body.style.top = '';
+      window.scrollTo(0, scrollPos);
     }
 
-    // Update the position class
-    event.currentTarget.className = `info-icon-container ${position}`;
+    // Only apply position class on desktop
+    if (window.innerWidth > 768) {
+      const position = determineTooltipPosition(event);
+      event.currentTarget.className = `info-icon-container ${position}`;
+    }
   };
 
-  // Add click handler for closing tooltips when clicking outside
+  // Update the click outside handler
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest('.info-icon-container')) {
-        setShowTooltip({});
-        document.body.classList.remove('tooltip-open');
+        if (Object.values(showTooltip).some(Boolean)) {
+          const scrollPos = parseInt(document.body.style.top || '0', 10);
+          setShowTooltip({});
+          document.body.classList.remove('tooltip-open');
+          document.body.style.top = '';
+          window.scrollTo(0, Math.abs(scrollPos));
+        }
       }
     };
 
@@ -69,8 +83,9 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
     return () => {
       document.removeEventListener('click', handleClickOutside);
       document.body.classList.remove('tooltip-open');
+      document.body.style.top = '';
     };
-  }, []);
+  }, [showTooltip]);
 
   useEffect(() => {
     fetch('/api/category-definitions')
