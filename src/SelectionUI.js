@@ -15,6 +15,10 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
   const [rotatingCategories, setRotatingCategories] = useState({});
   const [categoryDefinitions, setCategoryDefinitions] = useState({});
   const [showTooltip, setShowTooltip] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(null);
+
+  const isMobile = () => window.innerWidth <= 768;
 
   // Add instruction blurb component
   const InstructionBlurb = () => (
@@ -26,11 +30,22 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
     </div>
   );
 
+  const handleMobileClick = (category, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setActiveCategory(category);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setActiveCategory(null);
+  };
+
   const determineTooltipPosition = (event) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const windowWidth = window.innerWidth;
     const centerPoint = windowWidth / 2;
-    
     return rect.left > centerPoint ? 'right-aligned' : 'left-aligned';
   };
 
@@ -48,18 +63,26 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
     });
     setShowTooltip(newTooltipState);
 
-    // Toggle body scroll lock while maintaining scroll position
-    if (!showTooltip[category]) {
-      document.body.classList.add('tooltip-open');
-      document.body.style.top = `-${scrollPos}px`;
-    } else {
-      document.body.classList.remove('tooltip-open');
-      document.body.style.top = '';
-      window.scrollTo(0, scrollPos);
-    }
+    if (isMobile()) {
+      // Add backdrop for mobile
+      const backdrop = document.createElement('div');
+      backdrop.className = `mobile-backdrop ${!showTooltip[category] ? 'show' : ''}`;
+      backdrop.onclick = () => {
+        setShowTooltip({});
+        document.body.classList.remove('tooltip-open');
+        document.body.style.top = '';
+        window.scrollTo(0, scrollPos);
+        backdrop.remove();
+      };
+      document.body.appendChild(backdrop);
 
-    // Only apply position class on desktop
-    if (window.innerWidth > 768) {
+      // Toggle body scroll lock
+      if (!showTooltip[category]) {
+        document.body.classList.add('tooltip-open');
+        document.body.style.top = `-${scrollPos}px`;
+      }
+    } else {
+      // Desktop behavior
       const position = determineTooltipPosition(event);
       event.currentTarget.className = `info-icon-container ${position}`;
     }
@@ -287,20 +310,31 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
                 <div key={category} className="category">
                   <div className="category-header">
                     <h3>{category}</h3>
-                    <div 
-                      className="info-icon-container"
-                      onTouchStart={(e) => handleTooltipTouch(category, e)}
-                      onMouseEnter={(e) => {
-                        const position = determineTooltipPosition(e);
-                        e.currentTarget.className = `info-icon-container ${position}`;
-                      }}
-                    >
-                      <FaInfoCircle className="info-icon" />
+                    {isMobile() ? (
+                      // Mobile version
+                      <div className="info-icon-container">
+                        <FaInfoCircle 
+                          className="info-icon"
+                          onClick={(e) => handleMobileClick(category, e)}
+                        />
+                      </div>
+                    ) : (
+                      // Desktop version
                       <div 
-                        className={`criteria-box ${showTooltip[category] ? 'show' : ''}`}
-                        dangerouslySetInnerHTML={{ __html: categoryDefinitions[category] || `Definition for ${category}` }}
-                      />
-                    </div>
+                        className="info-icon-container"
+                        onMouseEnter={(e) => {
+                          const position = determineTooltipPosition(e);
+                          e.currentTarget.className = `info-icon-container ${position}`;
+                        }}
+                      >
+                        <FaInfoCircle className="info-icon" />
+                        <div className="criteria-box">
+                          <div dangerouslySetInnerHTML={{ 
+                            __html: categoryDefinitions[category] || `Definition for ${category}` 
+                          }} />
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <select
                     value={localSelections[category] && localSelections[category].length === categories[category].length ? 'All' : ''}
@@ -327,6 +361,18 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
             </div>
           </div>
         ))}
+      </div>
+      {/* Mobile Modal - Always render but control visibility with CSS */}
+      <div className={`mobile-modal ${isModalOpen ? 'active' : ''}`}>
+        <div className="mobile-backdrop" onClick={handleCloseModal} />
+        {activeCategory && (
+          <div className="mobile-modal-content">
+            <button className="mobile-close" onClick={handleCloseModal}>×</button>
+            <div dangerouslySetInnerHTML={{ 
+              __html: categoryDefinitions[activeCategory] || `Definition for ${activeCategory}` 
+            }} />
+          </div>
+        )}
       </div>
     </div>
   );

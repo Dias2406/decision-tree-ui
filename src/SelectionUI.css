@@ -379,75 +379,96 @@ body {
 @media (max-width: 768px) {
     .criteria-box {
         position: fixed;
-        left: 50% !important;
-        right: auto !important;
-        top: 50vh !important;
-        transform: translate(-50%, -50%) scale(0.95) !important;
-        width: min(300px, 85vw);
-        margin: 0;
-        padding: 20px;
+        left: 0 !important;
+        right: 0 !important;
+        top: 50% !important;
+        transform: translateY(-50%) scale(0.95) !important;
+        width: 90% !important;
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 25px;
         font-size: 16px;
-        max-height: 80vh;
-        overflow-y: auto; /* Allow scrolling within the box on mobile */
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        background-color: #fff;
+        color: #333;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        z-index: 2000;
     }
 
     /* Ensure the tooltip is visible immediately on mobile */
     .criteria-box.show {
-        transform: translate(-50%, -50%) scale(1) !important;
+        transform: translateY(-50%) scale(1) !important;
         opacity: 1;
         visibility: visible;
     }
 
     /* Create a backdrop for mobile */
-    .criteria-box::after {
-        content: '';
+    .mobile-backdrop {
+        display: none;
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: -1;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 1999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
 
-    /* Hide the arrow on mobile */
-    .criteria-box::before {
-        display: none;
+    .mobile-backdrop.show {
+        display: block;
+        opacity: 1;
+    }
+
+    /* Mobile close button */
+    .mobile-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        color: #666;
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .mobile-close:hover {
+        color: #333;
+    }
+
+    /* Style adjustments for mobile content */
+    .criteria-box a {
+        color: var(--highlight-color);
+        font-weight: 500;
+    }
+
+    .criteria-box p {
+        color: #333;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 15px;
     }
 
     /* Prevent body scroll but maintain position */
     body.tooltip-open {
         position: fixed;
         width: 100%;
-        height: 100%;
-    }
-
-    /* Add a close button for mobile */
-    .criteria-box::after {
-        content: '×';
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: 24px;
-        height: 24px;
-        background: none;
-        color: white;
-        font-size: 24px;
-        line-height: 24px;
-        text-align: center;
-        cursor: pointer;
-        z-index: 2;
+        overflow: hidden;
     }
 }
 
 /* Smaller mobile screens */
 @media (max-width: 480px) {
     .criteria-box {
-        width: min(280px, 90vw);
-        padding: 15px;
-        /* Adjust vertical position for better visibility on small screens */
-        top: 40vh !important;
+        width: 95% !important;
+        padding: 20px;
     }
 }
 
@@ -455,13 +476,13 @@ body {
 @media (max-width: 768px) and (orientation: landscape) {
     .criteria-box {
         top: 0 !important;
-        transform: translateX(-50%) scale(0.95) !important;
+        transform: none !important;
         height: 100vh;
-        max-height: 100vh;
+        border-radius: 0;
     }
 
     .criteria-box.show {
-        transform: translateX(-50%) scale(1) !important;
+        transform: none !important;
     }
 }
 
@@ -531,4 +552,176 @@ body {
     -moz-user-select: text;
     -ms-user-select: text;
     user-select: text;
+}
+
+/* Desktop Tooltip Styles */
+@media (hover: hover) {
+    .info-icon-container {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        margin-left: 8px;
+    }
+
+    .info-icon {
+        color: var(--highlight-color);
+        cursor: pointer;
+        font-size: 18px;
+        transition: color 0.3s ease;
+        z-index: 2;
+    }
+
+    .info-icon:hover {
+        color: #8B1811;
+    }
+
+    .criteria-box {
+        position: absolute;
+        top: calc(100% + 15px);
+        left: 50%;
+        transform: translateX(-50%) scale(0.95);
+        background-color: black;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-size: 15px;
+        width: 350px;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .criteria-box::before {
+        content: '';
+        position: absolute;
+        top: -6px;
+        left: 50%;
+        transform: translateX(-50%) rotate(45deg);
+        width: 12px;
+        height: 12px;
+        background-color: black;
+    }
+
+    /* Direction-aware positioning */
+    .info-icon-container.right-aligned .criteria-box {
+        left: auto;
+        right: 0;
+        transform: translateX(0) scale(0.95);
+    }
+
+    .info-icon-container.left-aligned .criteria-box {
+        left: 0;
+        right: auto;
+        transform: translateX(0) scale(0.95);
+    }
+
+    .info-icon-container:hover .criteria-box {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) scale(1);
+        pointer-events: auto;
+    }
+
+    .info-icon-container.right-aligned:hover .criteria-box {
+        transform: translateX(0) scale(1);
+    }
+
+    .info-icon-container.left-aligned:hover .criteria-box {
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* Mobile Modal Styles */
+@media (max-width: 768px) {
+    .mobile-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2000;
+        display: none;
+    }
+
+    .mobile-modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mobile-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 2000;
+    }
+
+    .mobile-modal-content {
+        position: relative;
+        width: 90%;
+        max-width: 400px;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        z-index: 2001;
+        color: #333;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        margin: 20px;
+    }
+
+    .mobile-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        color: #666;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .mobile-modal-content a {
+        color: var(--highlight-color);
+        font-weight: 500;
+    }
+
+    .mobile-modal-content p {
+        color: #333;
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+}
+
+/* Shared styles for links and content */
+.criteria-box a,
+.mobile-modal-content a {
+    color: var(--highlight-color);
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.criteria-box p,
+.mobile-modal-content p {
+    margin: 0;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+@media (max-width: 768px) {
+    .mobile-modal-content p {
+        font-size: 16px;
+    }
 }
