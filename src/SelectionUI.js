@@ -28,11 +28,27 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
 
   const handleTooltipTouch = (category, event) => {
     event.preventDefault();
-    setShowTooltip(prev => ({
-      ...prev,
-      [category]: !prev[category]
-    }));
+    // Close any other open tooltips
+    const newTooltipState = {};
+    Object.keys(showTooltip).forEach(key => {
+      newTooltipState[key] = key === category ? !showTooltip[category] : false;
+    });
+    setShowTooltip(newTooltipState);
   };
+
+  // Add click handler for closing tooltips when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.info-icon-container')) {
+        setShowTooltip({});
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     fetch('/api/category-definitions')
@@ -239,9 +255,10 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
                       onTouchStart={(e) => handleTooltipTouch(category, e)}
                     >
                       <FaInfoCircle className="info-icon" />
-                      <div className={`criteria-box ${showTooltip[category] ? 'show' : ''}`}>
-                        <p>{categoryDefinitions[category] || `Definition for ${category}`}</p>
-                      </div>
+                      <div 
+                        className={`criteria-box ${showTooltip[category] ? 'show' : ''}`}
+                        dangerouslySetInnerHTML={{ __html: categoryDefinitions[category] || `Definition for ${category}` }}
+                      />
                     </div>
                   </div>
                   <select
