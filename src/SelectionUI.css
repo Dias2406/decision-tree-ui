@@ -6,6 +6,14 @@
     max-width: 80%;
     margin: 0 auto;
     padding: 20px;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    position: relative; /* Create new stacking context */
+}
+
+/* Prevent horizontal scrolling on the body */
+body {
+    overflow-x: hidden;
+    width: 100%;
 }
 
 .selection-grid {
@@ -191,8 +199,9 @@
 
 @media (max-width: 768px) {
     .selection-ui {
-        max-width: 98%; /* Even wider on mobile */
-        padding: 5px; /* Minimal padding */
+        max-width: 98%;
+        padding: 5px;
+        margin: 0 auto;
     }
 
     .subcategory-grid {
@@ -223,8 +232,8 @@
 /* Even smaller screens */
 @media (max-width: 480px) {
     .selection-ui {
-        max-width: 99%; /* Almost full width */
-        padding: 3px; /* Minimal padding */
+        max-width: 99%;
+        padding: 3px;
     }
 
     .main-category {
@@ -269,8 +278,8 @@
     position: absolute;
     top: 100%;
     left: 50%;
-    width: 600px; /* Much wider bridge */
-    height: 60px; /* Taller bridge */
+    width: min(600px, 90vw);
+    height: 60px;
     transform: translateX(-50%);
     background: transparent;
     pointer-events: none;
@@ -296,42 +305,52 @@
     transform: translateX(-50%) scale(0.95);
     background-color: black;
     color: white;
-    padding: 15px 20px; /* Larger padding */
+    padding: 15px 20px;
     border-radius: 8px;
-    font-size: 15px; /* Slightly larger font */
-    width: 350px; /* Wider box */
+    font-size: 15px;
+    width: min(350px, 85vw);
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
     transition: 
         opacity 0.4s ease,
-        visibility 0s linear 1s, /* Longer delay before hiding */
+        visibility 0s linear 1s,
         transform 0.3s ease;
     pointer-events: none;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Prevent scrolling */
 }
 
-/* Create a massive hover area around the tooltip */
-.criteria-box::after {
-    content: '';
-    position: absolute;
-    top: -30px; /* Larger hover area */
-    left: -50px;
-    right: -50px;
-    bottom: -30px;
-    background: transparent;
-    z-index: -1;
+/* Direction-aware positioning */
+.info-icon-container.right-aligned .criteria-box {
+    left: auto;
+    right: 0;
+    transform: translateX(0) scale(0.95);
 }
 
-.criteria-box::before {
-    content: '';
-    position: absolute;
-    top: -6px;
-    left: 50%;
-    transform: translateX(-50%) rotate(45deg);
-    width: 12px;
-    height: 12px;
-    background-color: black;
+.info-icon-container.right-aligned:hover .criteria-box {
+    transform: translateX(0) scale(1);
+}
+
+.info-icon-container.left-aligned .criteria-box {
+    left: 0;
+    right: auto;
+    transform: translateX(0) scale(0.95);
+}
+
+.info-icon-container.left-aligned:hover .criteria-box {
+    transform: translateX(0) scale(1);
+}
+
+/* Adjust the arrow position based on alignment */
+.info-icon-container.right-aligned .criteria-box::before {
+    left: auto;
+    right: 10px;
+}
+
+.info-icon-container.left-aligned .criteria-box::before {
+    left: 10px;
+    right: auto;
 }
 
 /* Desktop hover behavior with delay and persistence */
@@ -339,20 +358,16 @@
     .info-icon-container:hover .criteria-box {
         opacity: 1;
         visibility: visible;
-        transform: translateX(-50%) scale(1);
         pointer-events: auto;
         transition-delay: 0.2s;
         transition-duration: 0.3s;
     }
 
-    /* Extended hover area for the tooltip */
     .criteria-box:hover {
         opacity: 1;
         visibility: visible;
-        transform: translateX(-50%) scale(1);
         pointer-events: auto;
         transition-delay: 0s;
-        /* Add a long transition out */
         transition: 
             opacity 0.4s ease,
             visibility 0s linear 1s,
@@ -360,14 +375,28 @@
     }
 }
 
-/* Mobile touch behavior */
-@media (hover: none) {
-    .criteria-box.show {
-        opacity: 1;
-        visibility: visible;
-        transform: translateX(-50%) scale(1);
-        pointer-events: auto;
-        transition-delay: 0s;
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+    .criteria-box {
+        position: fixed;
+        left: 50% !important; /* Override direction-aware positioning on mobile */
+        right: auto !important;
+        top: 50%;
+        transform: translate(-50%, -50%) scale(0.95) !important;
+        width: min(300px, 85vw);
+        margin: 0;
+        padding: 20px;
+        font-size: 16px;
+    }
+
+    .criteria-box.show,
+    .info-icon-container.right-aligned .criteria-box.show,
+    .info-icon-container.left-aligned .criteria-box.show {
+        transform: translate(-50%, -50%) scale(1) !important;
+    }
+
+    .criteria-box::before {
+        display: none;
     }
 }
 
@@ -422,36 +451,19 @@
     font-size: 1rem;
 }
 
-/* Mobile-specific adjustments */
-@media (max-width: 768px) {
-    .criteria-box {
-        width: 300px;
-        padding: 20px;
-        font-size: 16px; /* Larger font on mobile */
-    }
-    
-    .info-icon {
-        font-size: 24px; /* Even larger tap target on mobile */
-        padding: 8px;
-    }
+/* Prevent text selection in the tooltip */
+.criteria-box {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
-@media (max-width: 480px) {
-    .criteria-box {
-        width: 280px;
-        position: fixed;
-        left: 50%;
-        bottom: 40px; /* More space from bottom */
-        top: auto;
-        transform: translateX(-50%) scale(0.95);
-        padding: 20px;
-    }
-
-    .criteria-box.show {
-        transform: translateX(-50%) scale(1);
-    }
-
-    .criteria-box::before {
-        display: none;
-    }
+/* But allow text selection within the content */
+.criteria-box p, 
+.criteria-box a {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
 }

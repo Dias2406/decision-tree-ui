@@ -26,14 +26,34 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
     </div>
   );
 
+  const determineTooltipPosition = (event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const windowWidth = window.innerWidth;
+    const centerPoint = windowWidth / 2;
+    
+    return rect.left > centerPoint ? 'right-aligned' : 'left-aligned';
+  };
+
   const handleTooltipTouch = (category, event) => {
     event.preventDefault();
+    const position = determineTooltipPosition(event);
+    
     // Close any other open tooltips
     const newTooltipState = {};
     Object.keys(showTooltip).forEach(key => {
       newTooltipState[key] = key === category ? !showTooltip[category] : false;
     });
     setShowTooltip(newTooltipState);
+
+    // Toggle body scroll lock
+    if (!showTooltip[category]) {
+      document.body.classList.add('tooltip-open');
+    } else {
+      document.body.classList.remove('tooltip-open');
+    }
+
+    // Update the position class
+    event.currentTarget.className = `info-icon-container ${position}`;
   };
 
   // Add click handler for closing tooltips when clicking outside
@@ -41,12 +61,14 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
     const handleClickOutside = (event) => {
       if (!event.target.closest('.info-icon-container')) {
         setShowTooltip({});
+        document.body.classList.remove('tooltip-open');
       }
     };
 
     document.addEventListener('click', handleClickOutside);
     return () => {
       document.removeEventListener('click', handleClickOutside);
+      document.body.classList.remove('tooltip-open');
     };
   }, []);
 
@@ -253,6 +275,10 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
                     <div 
                       className="info-icon-container"
                       onTouchStart={(e) => handleTooltipTouch(category, e)}
+                      onMouseEnter={(e) => {
+                        const position = determineTooltipPosition(e);
+                        e.currentTarget.className = `info-icon-container ${position}`;
+                      }}
                     >
                       <FaInfoCircle className="info-icon" />
                       <div 
