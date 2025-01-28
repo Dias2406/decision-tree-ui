@@ -149,23 +149,28 @@
 
 .video-modal-close {
   position: absolute;
-  top: -40px;
-  right: -40px;
-  background: none;
+  top: 15px;
+  right: 15px;
+  background-color: rgba(0, 0, 0, 0.1);
   border: none;
-  color: white;
+  color: #333;
   cursor: pointer;
   padding: 8px;
   font-size: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease;
+  transition: all 0.2s ease;
   -webkit-tap-highlight-color: transparent;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  z-index: 2001;
 }
 
 .video-modal-close:hover {
   transform: scale(1.1);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 @media (max-width: 768px) {
@@ -191,8 +196,7 @@
   .video-modal-close {
     top: 10px;
     right: 10px;
-    color: #333;
-    font-size: 28px; /* Larger close button on mobile */
+    font-size: 28px;
     padding: 12px;
   }
 
