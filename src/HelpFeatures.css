@@ -28,6 +28,29 @@
   transform: scale(0.95); /* Add feedback for mobile taps */
 }
 
+/* Mobile Help Button */
+.mobile-help-button {
+  display: block;
+  width: 300px; /* Match the Learn More button width */
+  margin: 10px auto;
+  padding: 15px 30px;
+  background-color: #AF1E15;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-family: 'Noto Sans', sans-serif;
+  font-size: 1.2em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-help-button:hover,
+.mobile-help-button:active {
+  background-color: #8f1811;
+}
+
 .help-bar {
   position: fixed;
   bottom: -100px;
