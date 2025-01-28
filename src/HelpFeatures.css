@@ -1,6 +1,6 @@
 .floating-help-button {
   position: fixed;
-  top: 100px;
+  top: 20px;
   right: 20px;
   width: 40px;
   height: 40px;
@@ -147,13 +147,17 @@
 
 @media (max-width: 768px) {
   .floating-help-button {
-    top: auto;
-    bottom: 20px;
+    top: 20px; /* Keep at top */
     right: 20px;
-    width: 50px; /* Larger on mobile */
-    height: 50px; /* Larger on mobile */
-    font-size: 24px; /* Larger icon on mobile */
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    width: 40px; /* Keep same size as desktop */
+    height: 40px;
+    background-color: #AF1E15;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .floating-help-button svg {
+    width: 20px;
+    height: 20px;
   }
 
   .video-modal-content {

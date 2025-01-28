@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { FaQuestionCircle, FaTimes } from 'react-icons/fa';
 import './HelpFeatures.css';
 
+const HELP_URL = 'https://scribehow.com/shared/How_to_use_the_L4WB-i_Policy_Decisions_Tree__k5Us3SdtS-SNezl31O-WMg';
+
 const HelpFeatures = () => {
   const [showVideo, setShowVideo] = useState(false);
   const [showHelpBar, setShowHelpBar] = useState(false);
@@ -47,15 +49,23 @@ const HelpFeatures = () => {
     }
   }, [showVideo]);
 
+  const handleHelpClick = () => {
+    if (isMobile) {
+      window.open(HELP_URL, '_blank');
+    } else {
+      setShowVideo(true);
+    }
+  };
+
   return (
     <>
-      {/* Floating Help Button - Always visible */}
+      {/* Help Button */}
       <button 
         className="floating-help-button"
-        onClick={() => setShowVideo(true)}
+        onClick={handleHelpClick}
         title="Need help?"
       >
-        <FaQuestionCircle />
+        <FaQuestionCircle size={isMobile ? 24 : 20} />
       </button>
 
       {/* Help Bar - Only on desktop */}
@@ -79,8 +89,8 @@ const HelpFeatures = () => {
         </div>
       )}
 
-      {/* Video Modal */}
-      {showVideo && (
+      {/* Video Modal - Only on desktop */}
+      {!isMobile && showVideo && (
         <div className="video-modal">
           <div className="video-modal-content">
             <button 
@@ -90,7 +100,7 @@ const HelpFeatures = () => {
               <FaTimes />
             </button>
             <iframe 
-              src="https://scribehow.com/embed/How_to_use_the_L4WB-i_Policy_Decisions_Tree__k5Us3SdtS-SNezl31O-WMg?removeLogo=true&as=scrollable" 
+              src={`${HELP_URL}?removeLogo=true&as=scrollable`}
               width="100%" 
               height="640" 
               allowFullScreen 
