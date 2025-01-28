@@ -13,6 +13,7 @@ import * as XLSX from 'xlsx';
 import FeedbackModal from './FeedbackModal';
 import DownloadModal from './DownloadModal';
 import InfoModal from './InfoModal';
+import HelpFeatures from './HelpFeatures';
 
 function capitalizeWords(str) {
   return str.replace(/\b\w/g, l => l.toUpperCase());
@@ -794,6 +795,8 @@ function App() {
       )}
 
       {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} />}
+
+      <HelpFeatures />
     </div>
   );
 }
