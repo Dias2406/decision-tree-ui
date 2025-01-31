@@ -310,9 +310,8 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
                       // Desktop version
                       <div 
                         className="info-icon-container"
-                        onMouseEnter={(e) => {
-                          const position = determineTooltipPosition(e);
-                          e.currentTarget.className = `info-icon-container ${position}`;
+                        onMouseMove={(e) => {
+                          e.currentTarget.className = `info-icon-container ${determineTooltipPosition(e)}`;
                         }}
                       >
                         <FaInfoCircle className="info-icon" />
