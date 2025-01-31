@@ -47,6 +47,15 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
     }
   }, [categoryDefinitions, activeCategory]);
 
+  // Handle clicks on links within tooltips
+  const handleTooltipClick = (e) => {
+    const link = e.target.closest('a');
+    if (link) {
+      e.preventDefault();
+      window.open(link.href, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   // Add instruction blurb component
   const InstructionBlurb = () => (
     <div className="instruction-blurb">
@@ -315,7 +324,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
                         }}
                       >
                         <FaInfoCircle className="info-icon" />
-                        <div className="criteria-box">
+                        <div className="criteria-box" onClick={handleTooltipClick}>
                           <div ref={(el) => setTooltipRef(el, category)} dangerouslySetInnerHTML={{ 
                             __html: categoryDefinitions[category] || `Definition for ${category}` 
                           }} />
@@ -355,7 +364,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
         {activeCategory && (
           <div className="mobile-modal-content">
             <button className="mobile-close" onClick={handleCloseModal}>×</button>
-            <div ref={mobileTooltipRef} dangerouslySetInnerHTML={{ 
+            <div onClick={handleTooltipClick} dangerouslySetInnerHTML={{ 
               __html: categoryDefinitions[activeCategory] || `Definition for ${activeCategory}` 
             }} />
           </div>
