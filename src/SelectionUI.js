@@ -2,7 +2,7 @@
 // Policy Decision Tree
 // policydecisions.org
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './SelectionUI.css';
 import { FaInfoCircle } from 'react-icons/fa';
 
@@ -17,8 +17,81 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
   const [showTooltip, setShowTooltip] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
+  const tooltipRefs = useRef({});
+  const mobileTooltipRef = useRef(null);
 
   const isMobile = () => window.innerWidth <= 768;
+
+  // Function to update links in a container to open in new tab
+  const updateLinks = (container) => {
+    if (!container) return;
+    const links = container.getElementsByTagName('a');
+    for (let link of links) {
+      // Remove old event listeners and data
+      const oldHandler = link._clickHandler;
+      if (oldHandler) {
+        link.removeEventListener('click', oldHandler);
+      }
+
+      // Set the attributes
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+      
+      // Create new handler with a flag to prevent multiple triggers
+      const clickHandler = (e) => {
+        e.preventDefault();
+        if (!link._isProcessing) {
+          link._isProcessing = true;
+          window.open(link.href, '_blank', 'noopener,noreferrer');
+          setTimeout(() => {
+            link._isProcessing = false;
+          }, 100);
+        }
+      };
+
+      // Store the handler reference for cleanup
+      link._clickHandler = clickHandler;
+      link.addEventListener('click', clickHandler);
+    }
+  };
+
+  // Cleanup function for links
+  const cleanupLinks = (container) => {
+    if (!container) return;
+    const links = container.getElementsByTagName('a');
+    for (let link of links) {
+      if (link._clickHandler) {
+        link.removeEventListener('click', link._clickHandler);
+        delete link._clickHandler;
+        delete link._isProcessing;
+      }
+    }
+  };
+
+  // Ref callback for tooltips
+  const setTooltipRef = useCallback((element, category) => {
+    if (element) {
+      // Cleanup old refs if they exist
+      if (tooltipRefs.current[category]) {
+        cleanupLinks(tooltipRefs.current[category]);
+      }
+      tooltipRefs.current[category] = element;
+      updateLinks(element);
+    }
+  }, []);
+
+  // Effect to update mobile tooltip links
+  useEffect(() => {
+    if (mobileTooltipRef.current) {
+      updateLinks(mobileTooltipRef.current);
+    }
+    // Cleanup on unmount or category change
+    return () => {
+      if (mobileTooltipRef.current) {
+        cleanupLinks(mobileTooltipRef.current);
+      }
+    };
+  }, [categoryDefinitions, activeCategory]);
 
   // Add instruction blurb component
   const InstructionBlurb = () => (
@@ -47,45 +120,6 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
     const windowWidth = window.innerWidth;
     const centerPoint = windowWidth / 2;
     return rect.left > centerPoint ? 'right-aligned' : 'left-aligned';
-  };
-
-  const handleTooltipTouch = (category, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    // Store current scroll position
-    const scrollPos = window.scrollY;
-    
-    // Close any other open tooltips
-    const newTooltipState = {};
-    Object.keys(showTooltip).forEach(key => {
-      newTooltipState[key] = key === category ? !showTooltip[category] : false;
-    });
-    setShowTooltip(newTooltipState);
-
-    if (isMobile()) {
-      // Add backdrop for mobile
-      const backdrop = document.createElement('div');
-      backdrop.className = `mobile-backdrop ${!showTooltip[category] ? 'show' : ''}`;
-      backdrop.onclick = () => {
-        setShowTooltip({});
-        document.body.classList.remove('tooltip-open');
-        document.body.style.top = '';
-        window.scrollTo(0, scrollPos);
-        backdrop.remove();
-      };
-      document.body.appendChild(backdrop);
-
-      // Toggle body scroll lock
-      if (!showTooltip[category]) {
-        document.body.classList.add('tooltip-open');
-        document.body.style.top = `-${scrollPos}px`;
-      }
-    } else {
-      // Desktop behavior
-      const position = determineTooltipPosition(event);
-      event.currentTarget.className = `info-icon-container ${position}`;
-    }
   };
 
   // Update the click outside handler
@@ -322,14 +356,13 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
                       // Desktop version
                       <div 
                         className="info-icon-container"
-                        onMouseEnter={(e) => {
-                          const position = determineTooltipPosition(e);
-                          e.currentTarget.className = `info-icon-container ${position}`;
+                        onMouseMove={(e) => {
+                          e.currentTarget.className = `info-icon-container ${determineTooltipPosition(e)}`;
                         }}
                       >
                         <FaInfoCircle className="info-icon" />
                         <div className="criteria-box">
-                          <div dangerouslySetInnerHTML={{ 
+                          <div ref={(el) => setTooltipRef(el, category)} dangerouslySetInnerHTML={{ 
                             __html: categoryDefinitions[category] || `Definition for ${category}` 
                           }} />
                         </div>
@@ -368,7 +401,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
         {activeCategory && (
           <div className="mobile-modal-content">
             <button className="mobile-close" onClick={handleCloseModal}>×</button>
-            <div dangerouslySetInnerHTML={{ 
+            <div ref={mobileTooltipRef} dangerouslySetInnerHTML={{ 
               __html: categoryDefinitions[activeCategory] || `Definition for ${activeCategory}` 
             }} />
           </div>
