@@ -2,7 +2,7 @@
 // Policy Decision Tree
 // policydecisions.org
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './SelectionUI.css';
 import { FaInfoCircle } from 'react-icons/fa';
 
@@ -17,21 +17,35 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
   const [showTooltip, setShowTooltip] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
+  const tooltipRefs = useRef({});
+  const mobileTooltipRef = useRef(null);
 
   const isMobile = () => window.innerWidth <= 768;
 
-  // Process HTML content to add target="_blank" to links
-  const processHtmlContent = (html) => {
-    if (!html) return '';
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const links = doc.getElementsByTagName('a');
+  // Function to update links in a container to open in new tab
+  const updateLinks = (container) => {
+    if (!container) return;
+    const links = container.getElementsByTagName('a');
     for (let link of links) {
       link.setAttribute('target', '_blank');
       link.setAttribute('rel', 'noopener noreferrer');
     }
-    return doc.body.innerHTML;
   };
+
+  // Ref callback for tooltips
+  const setTooltipRef = useCallback((element, category) => {
+    if (element) {
+      tooltipRefs.current[category] = element;
+      updateLinks(element);
+    }
+  }, []);
+
+  // Effect to update mobile tooltip links
+  useEffect(() => {
+    if (mobileTooltipRef.current) {
+      updateLinks(mobileTooltipRef.current);
+    }
+  }, [categoryDefinitions, activeCategory]);
 
   // Add instruction blurb component
   const InstructionBlurb = () => (
@@ -60,45 +74,6 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
     const windowWidth = window.innerWidth;
     const centerPoint = windowWidth / 2;
     return rect.left > centerPoint ? 'right-aligned' : 'left-aligned';
-  };
-
-  const handleTooltipTouch = (category, event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    // Store current scroll position
-    const scrollPos = window.scrollY;
-    
-    // Close any other open tooltips
-    const newTooltipState = {};
-    Object.keys(showTooltip).forEach(key => {
-      newTooltipState[key] = key === category ? !showTooltip[category] : false;
-    });
-    setShowTooltip(newTooltipState);
-
-    if (isMobile()) {
-      // Add backdrop for mobile
-      const backdrop = document.createElement('div');
-      backdrop.className = `mobile-backdrop ${!showTooltip[category] ? 'show' : ''}`;
-      backdrop.onclick = () => {
-        setShowTooltip({});
-        document.body.classList.remove('tooltip-open');
-        document.body.style.top = '';
-        window.scrollTo(0, scrollPos);
-        backdrop.remove();
-      };
-      document.body.appendChild(backdrop);
-
-      // Toggle body scroll lock
-      if (!showTooltip[category]) {
-        document.body.classList.add('tooltip-open');
-        document.body.style.top = `-${scrollPos}px`;
-      }
-    } else {
-      // Desktop behavior
-      const position = determineTooltipPosition(event);
-      event.currentTarget.className = `info-icon-container ${position}`;
-    }
   };
 
   // Update the click outside handler
@@ -342,8 +317,8 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
                       >
                         <FaInfoCircle className="info-icon" />
                         <div className="criteria-box">
-                          <div dangerouslySetInnerHTML={{ 
-                            __html: processHtmlContent(categoryDefinitions[category]) || `Definition for ${category}` 
+                          <div ref={(el) => setTooltipRef(el, category)} dangerouslySetInnerHTML={{ 
+                            __html: categoryDefinitions[category] || `Definition for ${category}` 
                           }} />
                         </div>
                       </div>
@@ -381,8 +356,8 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
         {activeCategory && (
           <div className="mobile-modal-content">
             <button className="mobile-close" onClick={handleCloseModal}>×</button>
-            <div dangerouslySetInnerHTML={{ 
-              __html: processHtmlContent(categoryDefinitions[activeCategory]) || `Definition for ${activeCategory}` 
+            <div ref={mobileTooltipRef} dangerouslySetInnerHTML={{ 
+              __html: categoryDefinitions[activeCategory] || `Definition for ${activeCategory}` 
             }} />
           </div>
         )}
