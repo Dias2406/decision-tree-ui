@@ -20,6 +20,19 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
 
   const isMobile = () => window.innerWidth <= 768;
 
+  // Process HTML content to add target="_blank" to links
+  const processHtmlContent = (html) => {
+    if (!html) return '';
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const links = doc.getElementsByTagName('a');
+    for (let link of links) {
+      link.setAttribute('target', '_blank');
+      link.setAttribute('rel', 'noopener noreferrer');
+    }
+    return doc.body.innerHTML;
+  };
+
   // Add instruction blurb component
   const InstructionBlurb = () => (
     <div className="instruction-blurb">
@@ -330,7 +343,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
                         <FaInfoCircle className="info-icon" />
                         <div className="criteria-box">
                           <div dangerouslySetInnerHTML={{ 
-                            __html: categoryDefinitions[category] || `Definition for ${category}` 
+                            __html: processHtmlContent(categoryDefinitions[category]) || `Definition for ${category}` 
                           }} />
                         </div>
                       </div>
@@ -369,7 +382,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
           <div className="mobile-modal-content">
             <button className="mobile-close" onClick={handleCloseModal}>×</button>
             <div dangerouslySetInnerHTML={{ 
-              __html: categoryDefinitions[activeCategory] || `Definition for ${activeCategory}` 
+              __html: processHtmlContent(categoryDefinitions[activeCategory]) || `Definition for ${activeCategory}` 
             }} />
           </div>
         )}
