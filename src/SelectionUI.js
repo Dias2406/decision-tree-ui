@@ -20,7 +20,15 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
   const tooltipRefs = useRef({});
   const mobileTooltipRef = useRef(null);
 
-  const isMobile = () => window.innerWidth <= 768;
+  // Function to detect touch screen capability
+  const isTouchDevice = () => {
+    return (('ontouchstart' in window) ||
+      (navigator.maxTouchPoints > 0) ||
+      (navigator.msMaxTouchPoints > 0));
+  };
+
+  // Updated mobile detection to include both screen width and touch capability
+  const isMobile = () => window.innerWidth <= 768 || isTouchDevice();
 
   // Function to update links in a container to open in new tab
   const updateLinks = (container) => {
@@ -122,16 +130,12 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
     return rect.left > centerPoint ? 'right-aligned' : 'left-aligned';
   };
 
-  // Update the click outside handler
+  // Update the click outside handler to handle touch devices
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest('.info-icon-container')) {
         if (Object.values(showTooltip).some(Boolean)) {
-          const scrollPos = parseInt(document.body.style.top || '0', 10);
           setShowTooltip({});
-          document.body.classList.remove('tooltip-open');
-          document.body.style.top = '';
-          window.scrollTo(0, Math.abs(scrollPos));
         }
       }
     };
@@ -139,8 +143,6 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
     document.addEventListener('click', handleClickOutside);
     return () => {
       document.removeEventListener('click', handleClickOutside);
-      document.body.classList.remove('tooltip-open');
-      document.body.style.top = '';
     };
   }, [showTooltip]);
 
@@ -344,8 +346,8 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
                 <div key={category} className="category">
                   <div className="category-header">
                     <h3>{category}</h3>
-                    {isMobile() ? (
-                      // Mobile version
+                    {isTouchDevice() ? (
+                      // Touch device version
                       <div className="info-icon-container">
                         <FaInfoCircle 
                           className="info-icon"
@@ -353,7 +355,7 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
                         />
                       </div>
                     ) : (
-                      // Desktop version
+                      // Non-touch device version
                       <div 
                         className="info-icon-container"
                         onMouseMove={(e) => {
@@ -395,15 +397,19 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
           </div>
         ))}
       </div>
-      {/* Mobile Modal - Always render but control visibility with CSS */}
+      {/* Modal for touch devices - Always render but control visibility with CSS */}
       <div className={`mobile-modal ${isModalOpen ? 'active' : ''}`}>
         <div className="mobile-backdrop" onClick={handleCloseModal} />
         {activeCategory && (
           <div className="mobile-modal-content">
             <button className="mobile-close" onClick={handleCloseModal}>×</button>
-            <div ref={mobileTooltipRef} dangerouslySetInnerHTML={{ 
-              __html: categoryDefinitions[activeCategory] || `Definition for ${activeCategory}` 
-            }} />
+            <div 
+              ref={mobileTooltipRef} 
+              className="mobile-tooltip-content"
+              dangerouslySetInnerHTML={{ 
+                __html: categoryDefinitions[activeCategory] || `Definition for ${activeCategory}` 
+              }} 
+            />
           </div>
         )}
       </div>
