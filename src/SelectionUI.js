@@ -27,9 +27,6 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
       (navigator.msMaxTouchPoints > 0));
   };
 
-  // Updated mobile detection to include both screen width and touch capability
-  const isMobile = () => window.innerWidth <= 768 || isTouchDevice();
-
   // Function to update links in a container to open in new tab
   const updateLinks = (container) => {
     if (!container) return;
@@ -93,10 +90,14 @@ function SelectionUI({ setSelections, setRelevantPapers, setUserCriteria, onRend
     if (mobileTooltipRef.current) {
       updateLinks(mobileTooltipRef.current);
     }
+    
+    // Capture the current value of the ref for cleanup
+    const currentTooltipRef = mobileTooltipRef.current;
+    
     // Cleanup on unmount or category change
     return () => {
-      if (mobileTooltipRef.current) {
-        cleanupLinks(mobileTooltipRef.current);
+      if (currentTooltipRef) {
+        cleanupLinks(currentTooltipRef);
       }
     };
   }, [categoryDefinitions, activeCategory]);

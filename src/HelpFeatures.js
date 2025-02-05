@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { FaQuestionCircle, FaTimes } from 'react-icons/fa';
+import { MdHelp } from 'react-icons/md';
 import './HelpFeatures.css';
 
 const HelpFeatures = () => {
   const [showVideo, setShowVideo] = useState(false);
   const [showHelpBar, setShowHelpBar] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [primaryIconFailed, setPrimaryIconFailed] = useState(false);
 
   const SCRIBE_URL = "https://scribehow.com/shared/How_to_use_the_L4WB-i_Policy_Decisions_Tree__k5Us3SdtS-SNezl31O-WMg";
 
@@ -68,7 +70,14 @@ const HelpFeatures = () => {
             onClick={handleHelpClick}
             title="Need help?"
           >
-            <FaQuestionCircle />
+            {!primaryIconFailed ? (
+              <FaQuestionCircle 
+                onError={() => setPrimaryIconFailed(true)}
+                className="help-icon primary"
+              />
+            ) : (
+              <MdHelp className="help-icon backup" />
+            )}
           </button>
 
           {/* Help Bar - Desktop only */}
